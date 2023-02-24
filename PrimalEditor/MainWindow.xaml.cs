@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Windows;
 
 using PrimalEditor.GameProject;
@@ -14,7 +15,9 @@ namespace PrimalEditor
         {
             InitializeComponent();
             Loaded += OnMainWindowLoaded;
+            Closing += OnMainWindowClosing;
         }
+
 
         private void OnMainWindowLoaded(object sender, RoutedEventArgs e)
         {
@@ -22,16 +25,24 @@ namespace PrimalEditor
             OpenProjectBrowserDialogue();
         }
 
+        private void OnMainWindowClosing(object sender, CancelEventArgs e)
+        {
+            Closing -= OnMainWindowClosing;
+            Project.Current?.Unload();
+        }
+
+
         private void OpenProjectBrowserDialogue()
         {
             var projectBrowser = new ProjectBrowserDialogue();
-            if (projectBrowser.ShowDialog() == false)
+            if (projectBrowser.ShowDialog() == false || projectBrowser.DataContext == null)
             {
                 Application.Current.Shutdown();
             }
             else
             {
-                // TODO: load game project info
+                Project.Current?.Unload();
+                DataContext = projectBrowser.DataContext;
             }
         }
     }
