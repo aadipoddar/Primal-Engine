@@ -34,7 +34,7 @@ namespace PrimalEditor.GameProject
 
 
 
-    public class OpenProject
+    class OpenProject
     {
         private static readonly string _applicationDataPath = $@"{Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)}\PrimalEditor\";
         private static readonly string _projectDataPath;
