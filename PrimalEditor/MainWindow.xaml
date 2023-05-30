@@ -5,8 +5,9 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:PrimalEditor"
         xmlns:editors="clr-namespace:PrimalEditor.Editors"
-        mc:Ignorable="d" WindowStartupLocation="CenterOwner" WindowState="Maximized"
-        Title="Primal Editor" Height="1080" Width="1920">
+        mc:Ignorable="d" WindowStartupLocation="CenterScreen" WindowState="Maximized"
+        Title="Primal Editor" Height="1080" Width="1920"
+        Style="{StaticResource PrimalWindowStyle}">
     <Grid>
         <editors:WorldEditorView/>
     </Grid>
