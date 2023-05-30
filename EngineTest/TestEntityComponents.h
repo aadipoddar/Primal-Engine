@@ -41,10 +41,10 @@ private:
 
 		if (_entities.empty()) count = 1000;
 
-		transform::init_info transforn_info{};
+		transform::init_info transform_info{};
 		game_entity::entity_info entity_info
 		{
-			&transforn_info,
+			&transform_info,
 		};
 
 		while (count > 0)

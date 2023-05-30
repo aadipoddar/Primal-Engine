@@ -4,7 +4,6 @@
 namespace primal::game_entity
 {
 
-
 	namespace // anonymous namespace
 	{
 		utl::vector<transform::component>	transforms;
