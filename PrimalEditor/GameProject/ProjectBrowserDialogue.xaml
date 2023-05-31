@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:PrimalEditor.GameProject"
         mc:Ignorable="d" ResizeMode="NoResize" WindowStartupLocation="CenterScreen"
-        Title="Project Browser" Height="600" Width="800" 
+        Title="Project Browser" Height="650" Width="800" 
         Style="{StaticResource PrimalDialogStyle}">
 
     <Window.Resources>
