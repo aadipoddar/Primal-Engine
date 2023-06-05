@@ -1,8 +1,5 @@
-﻿using System.Collections.Specialized;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
-
-using PrimalEditor.GameProject;
 
 namespace PrimalEditor.Editors
 {
@@ -22,7 +19,6 @@ namespace PrimalEditor.Editors
         {
             Loaded -= OnWorldEditorViewLoaded;
             Focus();
-            ((INotifyCollectionChanged)Project.UndoRedo.UndoList).CollectionChanged += (x, e) => Focus();
         }
     }
 }
