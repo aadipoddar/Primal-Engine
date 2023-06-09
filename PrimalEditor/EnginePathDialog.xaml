@@ -6,7 +6,8 @@
         xmlns:local="clr-namespace:PrimalEditor"
         mc:Ignorable="d" Style="{StaticResource PrimalDialogStyle}"
         ResizeMode="NoResize" ShowInTaskbar="False" WindowStartupLocation="CenterOwner"
-        Title="Where's Primal Engine?" Height="250" Width="400">
+        Title="Where's Primal Engine" Height="250" Width="400">
+    
     <Border CornerRadius="3" Background="{StaticResource Editor.Window.GrayBrush3}" HorizontalAlignment="Stretch"
             Margin="10">
         <Border.Effect>

@@ -10,7 +10,7 @@ namespace PrimalEditor.GameDev
     static class VisualStudio
     {
         private static EnvDTE80.DTE2 _vsInstance = null;
-        private static readonly string _progID = "ViusalStudio.DTE.17.0";
+        private static readonly string _progID = "VisualStudio.DTE.17.0";
 
         [DllImport("ole32.dll")]
         private static extern int CreateBindCtx(uint reserved, out IBindCtx ppbc);
@@ -124,7 +124,7 @@ namespace PrimalEditor.GameDev
             catch (Exception ex)
             {
                 Debug.WriteLine(ex.Message);
-                Debug.WriteLine("Faled to Add Files to Visual Studio Solution");
+                Debug.WriteLine("Failed to Add Files to Visual Studio Project");
                 return false;
             }
             return true;

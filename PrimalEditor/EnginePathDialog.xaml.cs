@@ -18,7 +18,7 @@ namespace PrimalEditor
 
         private void OnOk_ButtonClick(object sender, RoutedEventArgs e)
         {
-            var path = pathTextBox.Text;
+            var path = pathTextBox.Text.Trim();
             messageTextBlock.Text = string.Empty;
 
             if (string.IsNullOrEmpty(path))
