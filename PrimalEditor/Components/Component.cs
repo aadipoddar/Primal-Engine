@@ -27,12 +27,12 @@ namespace PrimalEditor.Components
         public List<T> SelectedComponents { get; }
 
         protected abstract bool UpdateComponents(string propertyName);
-        protected abstract bool UpdateMSComponent();
+        protected abstract bool UpdateMSComponents();
 
         public void Refresh()
         {
             _enableUpdates = false;
-            UpdateMSComponent();
+			UpdateMSComponents();
             _enableUpdates = true;
         }
 

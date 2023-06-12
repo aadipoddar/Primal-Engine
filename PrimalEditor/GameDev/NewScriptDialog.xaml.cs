@@ -43,7 +43,7 @@ namespace {1} {{
 	{{
 	public:
 		constexpr explicit {0}(primal::game_entity::entity entity)
-			: primal::script::entity_script(entity) {{}}
+			: primal::script::entity_script{{entity}} {{}}
 
 		void begin_play() override;
 		void update(float dt) override;

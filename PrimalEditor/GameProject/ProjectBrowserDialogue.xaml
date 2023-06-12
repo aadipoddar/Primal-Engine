@@ -15,6 +15,7 @@
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="BorderBrush" Value="Transparent"/>
             <Setter Property="Foreground" Value="{StaticResource Editor.Disabled.FontBrush}"/>
+			<Setter Property="BorderThickness" Value="1"/>
             <Setter Property="HorizontalContentAlignment" Value="Center"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
             <Setter Property="Template">
@@ -95,12 +96,12 @@
                 </LinearGradientBrush>
             </Rectangle.Fill>
         </Rectangle>
-
+		
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-            <ToggleButton Content="OPEN PROJECT" x:Name="openProjectButton" Margin="10,20,0,20"
+			<ToggleButton Content="OPEN PROJECT" x:Name="openProjectButton" FontSize="32" Margin="10,20,0,20"
                           Click="OnToggleButton_Click" IsChecked="True"/>
-            <ToggleButton Content="CREATE PROJECT" x:Name="createProjectButton" Margin="40,20,0,20"
-                          Click="OnToggleButton_Click" IsChecked="False"/>
+			<ToggleButton Content="CREATE PROJECT" x:Name="createProjectButton" FontSize="32" 
+						  Margin="40,20,0,20" Click="OnToggleButton_Click"/>
         </StackPanel>
 
         <StackPanel Orientation="Horizontal" Grid.Row="1" x:Name="browserContent">

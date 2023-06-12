@@ -30,20 +30,20 @@ namespace PrimalEditor.GameProject
     class NewProject : ViewModelBase
     {
         // TODO: get the path from the installation location
-        private readonly string _templatePath = @"..\..\PrimalEditor\ProjectTemplates";
+        private readonly string _templatePath = @"..\..\PrimalEditor\ProjectTemplates\";
 
 
-        private string _ProjectName = "NewProject";
+        private string _projectName = "NewProject";
         public string ProjectName
         {
-            get => _ProjectName;
+			get	=> _projectName;
             set
             {
-                if (_ProjectName != value)
+				if(_projectName != value)
                 {
-                    _ProjectName = value;
+					_projectName = value;
                     ValidateProjectPath();
-                    OnPropertyChanged(nameof(ProjectName));
+					OnPropertyChanged(nameof(ProjectName));
                 }
             }
         }

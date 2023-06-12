@@ -17,7 +17,7 @@
 
     <UserControl.InputBindings>
         <KeyBinding Command="{Binding UndoCommand}" Key="Z" Modifiers="Ctrl" />
-        <KeyBinding Command="{Binding RedoCommand}" Key="Y" Modifiers="Ctrl+Shift" />
+        <KeyBinding Command="{Binding RedoCommand}" Key="Z" Modifiers="Ctrl+Shift" />
         <KeyBinding Command="{Binding SaveCommand}" Key="S" Modifiers="Ctrl" />
         <KeyBinding Command="{Binding BuildCommand}" Key="F7" />
     </UserControl.InputBindings>

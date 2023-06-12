@@ -27,24 +27,21 @@ namespace PrimalEditor.DllWrapper
 {
     static class EngineAPI
     {
-        private const string _engineDll = "EngineDLL.dll";
-
-        [DllImport(_engineDll, CharSet = CharSet.Ansi)]
-        public static extern int LoadGameCodeDll(string dllPath);
-
-        [DllImport(_engineDll)]
-        public static extern int UnloadGameCodeDll();
+		private const string _engineDLL = "EngineDLL.dll";
+		[DllImport(_engineDLL, CharSet = CharSet.Ansi)]
+		public static extern int LoadGameCodeDLL(string dllPath);
+		[DllImport(_engineDLL)]
+		public static extern int UnloadGameCodeDLL();
 
         internal static class EntityAPI
         {
-            [DllImport(_engineDll)]
+			[DllImport(_engineDLL)]
             private static extern int CreateGameEntity(GameEntityDescriptor desc);
-
             public static int CreateGameEntity(GameEntity entity)
             {
                 GameEntityDescriptor desc = new GameEntityDescriptor();
 
-                //transform component
+				// Transform component
                 {
                     var c = entity.GetComponent<Transform>();
                     desc.Transform.Position = c.Position;
@@ -55,10 +52,8 @@ namespace PrimalEditor.DllWrapper
                 return CreateGameEntity(desc);
             }
 
-
-            [DllImport(_engineDll)]
-            public static extern void RemoveGameEntity(int id);
-
+			[DllImport(_engineDLL)]
+			private static extern void RemoveGameEntity(int id);
             public static void RemoveGameEntity(GameEntity entity)
             {
                 RemoveGameEntity(entity.EntityId);

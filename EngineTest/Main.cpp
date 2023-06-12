@@ -1,5 +1,5 @@
-#pragma comment(lib, "engine.lib")
 
+#pragma comment(lib, "Engine.lib")
 
 #define TEST_ENTITY_COMPONENTS 1
 
@@ -13,7 +13,7 @@
 int main()
 {
 #if _DEBUG
-	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
+	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF); // Look for memory leaks and set a flag
 #endif
 
 	engine_test test {};

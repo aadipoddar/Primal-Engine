@@ -496,7 +496,7 @@
 
                         <DataTrigger Binding="{Binding Value, RelativeSource={RelativeSource Self}}" Value="{x:Null}">
                             <Setter Property="Background" TargetName="PART_textBlock" Value="{StaticResource Editor.Disabled.FontBrush}" />
-                            <Setter Property="ToolTip" TargetName="PART_textBlock" Value="Mixed Value" />
+							<Setter Property="ToolTip" TargetName="PART_textBlock" Value="Mixed Values"/>
                             <Setter Property="MinWidth" TargetName="PART_textBlock" Value="20" />
                         </DataTrigger>
                     </ControlTemplate.Triggers>
@@ -544,7 +544,6 @@
                                  HorizontalAlignment="Center"/>
                         </Grid>
                     </Border>
-
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
                             <Setter Property="BorderBrush" TargetName="border" Value="{StaticResource Editor.Window.GrayBrush6}" />
@@ -553,11 +552,9 @@
                         <Trigger Property="IsEnabled" Value="False">
                             <Setter Property="Opacity" TargetName="grid"  Value="0.5" />
                         </Trigger>
-
-                        <DataTrigger Binding="{Binding Visibility, ElementName=PART_textBox}" Value="Visible">
-                            <Setter Property="Visibility" TargetName="PART_textBlock" Value="Collapsed" />
+						<DataTrigger Binding="{Binding Visibility, ElementName=PART_textBox}" Value="Visable">
+							<Setter Property="Visibility" TargetName="PART_textBlock" Value="Collapsed"/>
                         </DataTrigger>
-
                         <DataTrigger Binding="{Binding Value, RelativeSource={RelativeSource Self}}" Value="{x:Null}">
                             <Setter Property="Background" TargetName="PART_textBlock" Value="{StaticResource Editor.Disabled.FontBrush}" />
                             <Setter Property="ToolTip" TargetName="PART_textBlock" Value="Mixed Value" />
@@ -591,17 +588,16 @@
                             BorderThickness="{TemplateBinding BorderThickness}">
                         <Grid x:Name="grid">
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition x:Name="columnDefination0" />
-                                <ColumnDefinition x:Name="columnDefination1" />
-                                <ColumnDefinition x:Name="columnDefination2" />
-                                <ColumnDefinition x:Name="columnDefination3" />
+								<ColumnDefinition x:Name="columnDefinition0"/>
+								<ColumnDefinition x:Name="columnDefinition1"/>
+								<ColumnDefinition x:Name="columnDefinition2"/>
+								<ColumnDefinition x:Name="columnDefinition3"/>
                             </Grid.ColumnDefinitions>
-
                             <Grid.RowDefinitions>
-                                <RowDefinition x:Name="rowDefination0" />
-                                <RowDefinition x:Name="rowDefination1" />
-                                <RowDefinition x:Name="rowDefination2" />
-                                <RowDefinition x:Name="rowDefination3" />
+								<RowDefinition x:Name="rowDefinition0"/>
+								<RowDefinition x:Name="rowDefinition1"/>
+								<RowDefinition x:Name="rowDefinition2"/>
+								<RowDefinition x:Name="rowDefinition3"/>
                             </Grid.RowDefinitions>
 
                             <utl:NumberBox x:Name="nbX" Foreground="{StaticResource Editor.RedBrush}" Value="{Binding X, RelativeSource={RelativeSource TemplatedParent}}" ToolTip="X Value" />
@@ -613,40 +609,32 @@
 
                     <ControlTemplate.Triggers>
                         <DataTrigger Binding="{Binding Orientation, RelativeSource={RelativeSource Self}}" Value="Vertical">
-                            <Setter Property="Grid.Row" TargetName="nbX" Value="0" />
-                            <Setter Property="Grid.Row" TargetName="nbY" Value="1" />
-                            <Setter Property="Grid.Row" TargetName="nbZ" Value="2" />
-                            <Setter Property="Grid.Row" TargetName="nbW" Value="3" />
-
-                            <Setter Property="Width" TargetName="columnDefination1" Value="auto" />
-                            <Setter Property="Width" TargetName="columnDefination2" Value="auto" />
-                            <Setter Property="Width" TargetName="columnDefination3" Value="auto" />
+							<Setter Property="Grid.Row" TargetName="nbX" Value="0"/>
+							<Setter Property="Width" TargetName="columnDefinition1" Value="auto"/>
+							<Setter Property="Width" TargetName="columnDefinition2" Value="auto"/>
+							<Setter Property="Width" TargetName="columnDefinition3" Value="auto"/>
                         </DataTrigger>
 
                         <DataTrigger Binding="{Binding Orientation, RelativeSource={RelativeSource Self}}" Value="Horizontal">
-                            <Setter Property="Grid.Column" TargetName="nbX" Value="0" />
-                            <Setter Property="Grid.Column" TargetName="nbY" Value="1" />
-                            <Setter Property="Grid.Column" TargetName="nbZ" Value="2" />
-                            <Setter Property="Grid.Column" TargetName="nbW" Value="3" />
-
-                            <Setter Property="Height" TargetName="rowDefination1" Value="auto" />
-                            <Setter Property="Height" TargetName="rowDefination2" Value="auto" />
-                            <Setter Property="Height" TargetName="rowDefination3" Value="auto" />
+							<Setter Property="Grid.Column" TargetName="nbX" Value="0"/>
+							<Setter Property="Grid.Column" TargetName="nbY" Value="1"/>
+							<Setter Property="Grid.Column" TargetName="nbZ" Value="2"/>
+							<Setter Property="Grid.Column" TargetName="nbW" Value="3"/>
+							<Setter Property="Height" TargetName="rowDefinition1" Value="auto"/>
+							<Setter Property="Height" TargetName="rowDefinition2" Value="auto"/>
+							<Setter Property="Height" TargetName="rowDefinition3" Value="auto"/>
                         </DataTrigger>
 
                         <DataTrigger Binding="{Binding VectorType, RelativeSource={RelativeSource Self}}" Value="Vector2">
-                            <Setter Property="Width" TargetName="columnDefination2" Value="auto" />
-                            <Setter Property="Width" TargetName="columnDefination3" Value="auto" />
-
-                            <Setter Property="Height" TargetName="rowDefination2" Value="auto" />
-                            <Setter Property="Height" TargetName="rowDefination3" Value="auto" />
-
-                            <Setter Property="Visibility" TargetName="nbZ" Value="Collapsed" />
+							<Setter Property="Width" TargetName="columnDefinition2" Value="auto"/>
+							<Setter Property="Width" TargetName="columnDefinition3" Value="auto"/>
+							<Setter Property="Height" TargetName="rowDefinition2" Value="auto"/>
+							<Setter Property="Height" TargetName="rowDefinition3" Value="auto"/>
+							<Setter Property="Visibility" TargetName="nbZ" Value="Collapsed"/>
                         </DataTrigger>
-
                         <DataTrigger Binding="{Binding VectorType, RelativeSource={RelativeSource Self}}" Value="Vector3">
-                            <Setter Property="Width" TargetName="columnDefination3" Value="auto" />
-                            <Setter Property="Height" TargetName="rowDefination3" Value="auto" />
+							<Setter Property="Width" TargetName="columnDefinition3" Value="auto"/>
+							<Setter Property="Height" TargetName="rowDefinition3" Value="auto"/>
                         </DataTrigger>
 
                         <DataTrigger Binding="{Binding VectorType, RelativeSource={RelativeSource Self}}" Value="Vector4">

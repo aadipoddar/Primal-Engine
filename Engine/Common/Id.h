@@ -19,7 +19,7 @@ namespace primal::id
 
 	using generation_type = std::conditional_t<detail::generation_bits <= 16, std::conditional_t<detail::generation_bits <= 8, u8, u16>, u32>;
 	static_assert(sizeof(generation_type) * 8 >= detail::generation_bits);
-	static_assert((sizeof(id_type) - sizeof(generation_type)) > 0);
+	static_assert(sizeof(id_type) - sizeof(generation_type) > 0);
 
 	constexpr bool is_valid(id_type id)
 	{
@@ -51,7 +51,7 @@ namespace primal::id
 	{
 		struct id_base
 		{
-			constexpr explicit id_base(id_type id) : _id(id) { }
+			constexpr explicit id_base(id_type id) : _id{ id } {}
 			constexpr operator id_type() const { return _id; }
 
 		private:
@@ -68,7 +68,7 @@ namespace primal::id
 	};
 
 #else
-#define DEFINE_TYPE_ID(name) using name = id::id_type;
+#define DEFINE_TYPED_ID(name) using name = id::id_type;
 #endif
 
 }

@@ -11,7 +11,7 @@ namespace primal::script {
 
 		using script_registry = std::unordered_map<size_t, detail::script_creator>;
 
-		script_registry& registory()
+		script_registry& registry() 
 		{
 			// NOTE: We put this static variable in a function because of
 			//			the initialization order of static data. This way, we can
@@ -20,13 +20,11 @@ namespace primal::script {
 			return reg;
 		}
 
-		script_registry reg;
-
 		bool exists(script_id id)
 		{
 			assert(id::is_valid(id));
 			const id::id_type index { id::index(id)	};
-			assert(index < id_mapping.size() && id_mapping[index] < entity_scripts.size());
+			assert(index < generations.size() && id_mapping[index] < entity_scripts.size());
 			assert(generations[index] == id::generation(id));
 			return (generations[index] == id::generation(id)) &&
 				entity_scripts[id_mapping[index]] &&
@@ -37,7 +35,7 @@ namespace primal::script {
 	namespace detail {
 		u8 register_script(size_t tag, script_creator func)
 		{
-			bool result { registory().insert(script_registry::value_type{tag, func}).second };
+			bool result{ registry().insert(script_registry::value_type{tag, func}).second };
 			assert(result);
 			return result;
 		}
@@ -78,7 +76,7 @@ namespace primal::script {
 		const script_id id { c.get_id() };
 		const id::id_type index { id_mapping[id::index(id)] };
 		const script_id last_id { entity_scripts.back()->script().get_id() };
-		utl::errase_unordered(entity_scripts, index);
+		utl::erase_unordered(entity_scripts, index);
 		id_mapping[id::index(last_id)] = index;
 		id_mapping[id::index(id)] = id::invalid_id;
 	}

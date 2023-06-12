@@ -15,9 +15,8 @@ namespace PrimalEditor.Utilities
 
     class LogMessage
     {
-        public DateTime Time { get; set; }
-        public MessageType MessageType { get; set; }
-
+		public DateTime Time { get; }
+		public MessageType MessageType { get; }
         public string Message { get; }
         public string File { get; }
         public string Caller { get; }

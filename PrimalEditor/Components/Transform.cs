@@ -194,25 +194,25 @@ namespace PrimalEditor.Components
                 case nameof(PosX):
                 case nameof(PosY):
                 case nameof(PosZ):
-                    SelectedComponents.ForEach(c => c.Position = new Vector3(PosX ?? c.Position.X, PosY ?? c.Position.Y, PosZ ?? c.Position.Z));
+					SelectedComponents.ForEach(c => c.Position = new Vector3(_posX ?? c.Position.X, _posY ?? c.Position.Y, _posZ ?? c.Position.Z));
                     return true;
 
                 case nameof(RotX):
                 case nameof(RotY):
                 case nameof(RotZ):
-                    SelectedComponents.ForEach(c => c.Rotation = new Vector3(RotX ?? c.Rotation.X, RotY ?? c.Rotation.Y, RotZ ?? c.Rotation.Z));
+					SelectedComponents.ForEach(c => c.Rotation = new Vector3(_rotX ?? c.Rotation.X, _rotY ?? c.Rotation.Y, _rotZ ?? c.Rotation.Z));
                     return true;
 
                 case nameof(ScaleX):
                 case nameof(ScaleY):
                 case nameof(ScaleZ):
-                    SelectedComponents.ForEach(c => c.Scale = new Vector3(ScaleX ?? c.Scale.X, ScaleY ?? c.Scale.Y, ScaleZ ?? c.Scale.Z));
+					SelectedComponents.ForEach(c => c.Scale = new Vector3(_scaleX ?? c.Scale.X, _scaleY ?? c.Scale.Y, _scaleZ ?? c.Scale.Z));
                     return true;
             }
             return false;
         }
 
-        protected override bool UpdateMSComponent()
+		protected override bool UpdateMSComponents()
         {
             PosX = MSEntity.GetMixedValue(SelectedComponents, new Func<Transform, float>(x => x.Position.X));
             PosY = MSEntity.GetMixedValue(SelectedComponents, new Func<Transform, float>(x => x.Position.Y));

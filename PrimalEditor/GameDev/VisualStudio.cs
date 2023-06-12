@@ -20,8 +20,9 @@ namespace PrimalEditor.GameDev
         private static extern int CreateBindCtx(uint reserved, out IBindCtx ppbc);
 
         [DllImport("ole32.dll")]
-        private static extern int GetRunningObjectTable(int reserved, out IRunningObjectTable pprot);
-        public static void OpenVisualStudio(string solutionPath)
+		private static extern int GetRunningObjectTable(uint reserved, out IRunningObjectTable pprot);
+
+		public static void OpenVisualStudio(string solutionPath)
         {
             IRunningObjectTable rot = null;
             IEnumMoniker monikerTable = null;
@@ -118,8 +119,7 @@ namespace PrimalEditor.GameDev
                     var cpp = files.FirstOrDefault(x => Path.GetExtension(x) == ".cpp");
                     if (!string.IsNullOrEmpty(cpp))
                     {
-                        _vsInstance.ItemOperations.OpenFile(cpp, EnvDTE.Constants.vsViewKindTextView).Visible = true;
-                        //_vsInstance.ItemOperations.OpenFile(cpp, "{7651A702-06E5-11D1-8EBD-00A0C90F26EA}").Visible = true;
+                        _vsInstance.ItemOperations.OpenFile(cpp, EnvDTE.Constants.vsViewKindAny).Visible = true;
                     }
                     _vsInstance.MainWindow.Activate();
                     _vsInstance.MainWindow.Visible = true;
@@ -154,6 +154,8 @@ namespace PrimalEditor.GameDev
         {
             bool result = false;
 
+			for (int i = 0; i < 3; i++)
+			{
             try
             {
                 result = _vsInstance != null &&
@@ -165,6 +167,7 @@ namespace PrimalEditor.GameDev
                 Debug.WriteLine(ex.Message);
                 if (!result) System.Threading.Thread.Sleep(1000);
             }
+			}
             return result;
         }
 

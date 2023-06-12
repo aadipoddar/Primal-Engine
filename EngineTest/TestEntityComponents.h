@@ -84,8 +84,8 @@ private:
 
 	void print_results()
 	{
-		std::cout << "Entities Created: " << _added << "\n";
-		std::cout << "Entities Deleted: " << _removed << "\n";
+		std::cout << "Entities Created: " << _added << std::endl;
+		std::cout << "Entities Deleted: " << _removed << std::endl;
 	}
 
 	utl::vector<game_entity::entity> _entities;

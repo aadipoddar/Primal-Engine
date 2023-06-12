@@ -21,7 +21,7 @@ namespace PrimalEditor.Components
                 if (_entityId != value)
                 {
                     _entityId = value;
-                    OnPropertyChanged(nameof(EntityId));
+                    OnPropertyChanged(nameof(_entityId));
                 }
             }
         }
@@ -119,6 +119,7 @@ namespace PrimalEditor.Components
         private bool _enableUpdates = true;
 
         private bool? _isEnabled = true;
+        [DataMember]
         public bool? IsEnabled
         {
             get => _isEnabled;
@@ -132,8 +133,9 @@ namespace PrimalEditor.Components
             }
         }
 
-        private string? _name;
-        public string? Name
+        private string _name;
+		[DataMember]
+        public string Name
         {
             get => _name;
             set

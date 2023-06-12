@@ -13,7 +13,6 @@ namespace primal::math
 	using v3 = DirectX::XMFLOAT3;
 	using v3a = DirectX::XMFLOAT3A;
 	using v4 = DirectX::XMFLOAT4;
-	using v4a = DirectX::XMFLOAT4A;
 
 	using u32v2 = DirectX::XMUINT2;
 	using u32v3 = DirectX::XMUINT3;

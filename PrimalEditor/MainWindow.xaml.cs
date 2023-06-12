@@ -50,7 +50,7 @@ namespace PrimalEditor
             }
         }
 
-        private void OnMainWindowClosing(object? sender, CancelEventArgs e)
+        private void OnMainWindowClosing(object sender, CancelEventArgs e)
         {
             Closing -= OnMainWindowClosing;
             Project.Current?.Unload();
