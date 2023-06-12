@@ -20,9 +20,9 @@ namespace PrimalEditor.GameDev
         private static extern int CreateBindCtx(uint reserved, out IBindCtx ppbc);
 
         [DllImport("ole32.dll")]
-		private static extern int GetRunningObjectTable(uint reserved, out IRunningObjectTable pprot);
+        private static extern int GetRunningObjectTable(uint reserved, out IRunningObjectTable pprot);
 
-		public static void OpenVisualStudio(string solutionPath)
+        public static void OpenVisualStudio(string solutionPath)
         {
             IRunningObjectTable rot = null;
             IEnumMoniker monikerTable = null;
@@ -153,21 +153,23 @@ namespace PrimalEditor.GameDev
         public static bool IsDebugging()
         {
             bool result = false;
+            bool tryAgain = true;
 
-			for (int i = 0; i < 3; i++)
-			{
-            try
+            for (int i = 0; i < 3 && tryAgain; ++i)
             {
-                result = _vsInstance != null &&
-                    (_vsInstance.Debugger.CurrentProgram != null ||
-                    _vsInstance.Debugger.CurrentMode == EnvDTE.dbgDebugMode.dbgRunMode);
+                try
+                {
+                    result = _vsInstance != null &&
+                        (_vsInstance.Debugger.CurrentProgram != null ||
+                        _vsInstance.Debugger.CurrentMode == EnvDTE.dbgDebugMode.dbgRunMode);
+                    tryAgain = false;
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine(ex.Message);
+                    Thread.Sleep(1000);
+                }
             }
-            catch (Exception ex)
-            {
-                Debug.WriteLine(ex.Message);
-                if (!result) System.Threading.Thread.Sleep(1000);
-            }
-			}
             return result;
         }
 
@@ -182,7 +184,7 @@ namespace PrimalEditor.GameDev
             OpenVisualStudio(project.Solution);
             BuildDone = BuildSucceeded = false;
 
-            for (int i = 0; i < 3; ++i)
+            for (int i = 0; i < 3 && !BuildDone; ++i)
             {
                 try
                 {

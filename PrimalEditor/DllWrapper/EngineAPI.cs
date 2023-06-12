@@ -3,7 +3,8 @@ using System.Runtime.InteropServices;
 
 using PrimalEditor.Components;
 using PrimalEditor.EngineAPIStructs;
-
+using PrimalEditor.GameProject;
+using PrimalEditor.Utilities;
 
 namespace PrimalEditor.EngineAPIStructs
 {
@@ -34,15 +35,15 @@ namespace PrimalEditor.DllWrapper
 {
     static class EngineAPI
     {
-		private const string _engineDLL = "EngineDLL.dll";
+        private const string _engineDLL = "EngineDLL.dll";
 
-		[DllImport(_engineDLL, CharSet = CharSet.Ansi)]
-		public static extern int LoadGameCodeDLL(string dllPath);
+        [DllImport(_engineDLL, CharSet = CharSet.Ansi)]
+        public static extern int LoadGameCodeDLL(string dllPath);
 
-		[DllImport(_engineDLL)]
-		public static extern int UnloadGameCodeDLL();
+        [DllImport(_engineDLL)]
+        public static extern int UnloadGameCodeDLL();
 
-		[DllImport(_engineDLL)]
+        [DllImport(_engineDLL)]
         public static extern IntPtr GetScriptCreator(string name);
 
         [DllImport(_engineDLL)]
@@ -51,13 +52,13 @@ namespace PrimalEditor.DllWrapper
 
         internal static class EntityAPI
         {
-			[DllImport(_engineDLL)]
+            [DllImport(_engineDLL)]
             private static extern int CreateGameEntity(GameEntityDescriptor desc);
             public static int CreateGameEntity(GameEntity entity)
             {
                 GameEntityDescriptor desc = new GameEntityDescriptor();
 
-				// Transform component
+                // Transform component
                 {
                     var c = entity.GetComponent<Transform>();
                     desc.Transform.Position = c.Position;
@@ -67,14 +68,27 @@ namespace PrimalEditor.DllWrapper
 
                 // Script component
                 {
-                    // var c = entity.GetComponent<Script>();
+                    // Note: Here we also check if the cuurent project is not null, so we can tell whether the game code DLL has been loaded or not.
+                    // This way, creation of entities with a script component is deferred until the DLL has been loaded.
+                    var c = entity.GetComponent<Script>();
+                    if (c != null && Project.Current != null)
+                    {
+                        if (Project.Current.AvailableScripts.Contains(c.Name))
+                        {
+                            desc.Script.ScriptCreator = GetScriptCreator(c.Name);
+                        }
+                        else
+                        {
+                            Logger.Log(MessageType.Error, $"Unable to Find Script with Name {c.Name}. Game Entity will be created without Script Component!");
+                        }
+                    }
                 }
 
                 return CreateGameEntity(desc);
             }
 
-			[DllImport(_engineDLL)]
-			private static extern void RemoveGameEntity(int id);
+            [DllImport(_engineDLL)]
+            private static extern void RemoveGameEntity(int id);
             public static void RemoveGameEntity(GameEntity entity)
             {
                 RemoveGameEntity(entity.EntityId);

@@ -1,5 +1,7 @@
-﻿using System.Windows.Controls;
+﻿using System.Globalization;
+using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
+using System.Windows.Data;
 
 using PrimalEditor.Components;
 using PrimalEditor.GameProject;
@@ -7,9 +9,20 @@ using PrimalEditor.Utilities;
 
 namespace PrimalEditor.Editors
 {
-    /// <summary>
-    /// Interaction logic for GameEntityView.xaml
-    /// </summary>
+    public class NullableBoolToBoolConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            return value is bool b && b == true;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            return value is bool b && b == true;
+        }
+    }
+
+
     public partial class GameEntityView : UserControl
     {
         private Action _undoAction;
