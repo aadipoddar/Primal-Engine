@@ -59,6 +59,21 @@ namespace PrimalEditor.GameProject
         public BuildConfiguration DllBuildConfig => BuildConfig == 0 ? BuildConfiguration.DebugEditor : BuildConfiguration.ReleaseEditor;
 
 
+        private string[] _availableScripts;
+        public string[] AvailableScripts
+        {
+            get => _availableScripts;
+            set
+            {
+                if (_availableScripts != value)
+                {
+                    _availableScripts = value;
+                    OnPropertyChanged(nameof(AvailableScripts));
+                }
+            }
+        }
+
+
         [DataMember(Name = "Scenes")]
         private ObservableCollection<Scene> _scenes = new ObservableCollection<Scene>();
         public ReadOnlyObservableCollection<Scene> Scenes { get; private set; }
@@ -197,8 +212,14 @@ namespace PrimalEditor.GameProject
             var configName = GetConfigurationName(DllBuildConfig);
             var dll = $@"{Path}x64\{configName}\{Name}.dll";
 
+            AvailableScripts = null;
+
             if (File.Exists(dll) && EngineAPI.LoadGameCodeDLL(dll) != 0)
+            {
+                AvailableScripts = EngineAPI.GetScriptNames();
                 Logger.Log(MessageType.Info, "Game code DLL Loaded successfully");
+            }
+
             else
                 Logger.Log(MessageType.Warning, "Failed to Load Game Code DLL File. Try to build the project First");
         }
@@ -206,7 +227,10 @@ namespace PrimalEditor.GameProject
         private void UnloadGameCodeDll()
         {
             if (EngineAPI.UnloadGameCodeDLL() != 0)
+            {
                 Logger.Log(MessageType.Info, "Game code DLL UnLoaded");
+                AvailableScripts = null;
+            }
         }
 
         [OnDeserialized]
