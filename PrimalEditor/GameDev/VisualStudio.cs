@@ -213,8 +213,24 @@ namespace PrimalEditor.GameDev
                 {
                     Debug.WriteLine(ex.Message);
                     Debug.WriteLine($"Attempt {i}: failed to build {project.Name}");
-                    System.Threading.Thread.Sleep(1000);
+                    Thread.Sleep(1000);
                 }
+            }
+        }
+
+        public static void Run(Project project, string configname, bool debug)
+        {
+            if (_vsInstance != null && !IsDebugging() && BuildDone && BuildSucceeded)
+            {
+                _vsInstance.ExecuteCommand(debug ? "Debug.Start" : "Debug.StartWithoutDebugging");
+            }
+        }
+
+        public static void Stop()
+        {
+            if (_vsInstance != null && IsDebugging())
+            {
+                _vsInstance.ExecuteCommand("Debug.StopDebugging");
             }
         }
     }

@@ -167,7 +167,7 @@ namespace {1} {{
 
             for (int i = 0; i < 3; ++i)
             {
-                if (!VisualStudio.AddFilesToSolution(solution, projectName, files)) System.Threading.Thread.Sleep(1000);
+                if (!VisualStudio.AddFilesToSolution(solution, projectName, files)) Thread.Sleep(1000);
                 else break;
             }
         }

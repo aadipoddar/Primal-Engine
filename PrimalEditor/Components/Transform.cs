@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using System.IO;
+using System.Numerics;
 using System.Runtime.Serialization;
 
 using PrimalEditor.Utilities;
@@ -55,6 +56,13 @@ namespace PrimalEditor.Components
 
 
         public override IMSComponent GetMultiselectionComponent(MSEntity msEntity) => new MSTransform(msEntity);
+
+        public override void WriteToBinary(BinaryWriter bw)
+        {
+            bw.Write(_position.X); bw.Write(_position.Y); bw.Write(_position.Z);
+            bw.Write(_rotation.X); bw.Write(_rotation.Y); bw.Write(_rotation.Z);
+            bw.Write(_scale.X); bw.Write(_scale.Y); bw.Write(_scale.Z);
+        }
 
         public Transform(GameEntity owner) : base(owner) { }
     }
@@ -194,25 +202,25 @@ namespace PrimalEditor.Components
                 case nameof(PosX):
                 case nameof(PosY):
                 case nameof(PosZ):
-					SelectedComponents.ForEach(c => c.Position = new Vector3(_posX ?? c.Position.X, _posY ?? c.Position.Y, _posZ ?? c.Position.Z));
+                    SelectedComponents.ForEach(c => c.Position = new Vector3(_posX ?? c.Position.X, _posY ?? c.Position.Y, _posZ ?? c.Position.Z));
                     return true;
 
                 case nameof(RotX):
                 case nameof(RotY):
                 case nameof(RotZ):
-					SelectedComponents.ForEach(c => c.Rotation = new Vector3(_rotX ?? c.Rotation.X, _rotY ?? c.Rotation.Y, _rotZ ?? c.Rotation.Z));
+                    SelectedComponents.ForEach(c => c.Rotation = new Vector3(_rotX ?? c.Rotation.X, _rotY ?? c.Rotation.Y, _rotZ ?? c.Rotation.Z));
                     return true;
 
                 case nameof(ScaleX):
                 case nameof(ScaleY):
                 case nameof(ScaleZ):
-					SelectedComponents.ForEach(c => c.Scale = new Vector3(_scaleX ?? c.Scale.X, _scaleY ?? c.Scale.Y, _scaleZ ?? c.Scale.Z));
+                    SelectedComponents.ForEach(c => c.Scale = new Vector3(_scaleX ?? c.Scale.X, _scaleY ?? c.Scale.Y, _scaleZ ?? c.Scale.Z));
                     return true;
             }
             return false;
         }
 
-		protected override bool UpdateMSComponents()
+        protected override bool UpdateMSComponents()
         {
             PosX = MSEntity.GetMixedValue(SelectedComponents, new Func<Transform, float>(x => x.Position.X));
             PosY = MSEntity.GetMixedValue(SelectedComponents, new Func<Transform, float>(x => x.Position.Y));
