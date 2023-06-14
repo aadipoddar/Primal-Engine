@@ -227,7 +227,7 @@ namespace primal::platform {
 		RECT rect { info.client_area };
 
 		// Adjust the window for the correct device size
-		AdjustWindowRect(&rc, info.style, FALSE);
+		AdjustWindowRect(&rect, info.style, FALSE);
 
 		const wchar_t* caption { (init_info && init_info->caption) ? init_info->caption : L"Primal Game" };
 		const s32 left { init_info ? init_info->left : info.top_left.x };
