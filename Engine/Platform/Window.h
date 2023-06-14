@@ -17,10 +17,10 @@ namespace primal::platform {
 		bool is_fullscreen() const;
 		void* handle() const;
 		void set_caption(const wchar_t* caption) const;
-		const math::u32v4 size() const;
+		math::u32v4 size() const;
 		void resize(u32 width, u32 height) const;
-		const u32 width() const;
-		const u32 height() const;
+		u32 width() const;
+		u32 height() const;
 		bool is_closed() const;
 
 	private:
