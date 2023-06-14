@@ -214,7 +214,7 @@ namespace primal::platform {
 		wc.hCursor = LoadCursor(NULL, IDC_ARROW); // Use the default cursor
 		wc.hbrBackground = CreateSolidBrush(RGB(26, 48, 76)); // Background color
 		wc.lpszMenuName = NULL;
-		wc.lpszClassName = L"SavageWindow"; // Set the class name
+		wc.lpszClassName = L"PrimalWindow"; // Set the class name
 		wc.hIconSm = LoadIcon(NULL, IDI_APPLICATION); // Use the default small icon
 
 		// Register a window class
@@ -226,7 +226,7 @@ namespace primal::platform {
 		// Adjust the window for the correct device size
 		AdjustWindowRect(&rc, info.style, FALSE);
 
-		const wchar_t* caption { (init_info && init_info->caption) ? init_info->caption : L"Savage Game" };
+		const wchar_t* caption { (init_info && init_info->caption) ? init_info->caption : L"Primal Game" };
 		const s32 left { (init_info && init_info->left) ? init_info->left : info.client_area.left };
 		const s32 top { (init_info && init_info->top) ? init_info->top : info.client_area.top };
 		const s32 width { (init_info && init_info->width) ? init_info->width : rc.right - rc.left };
