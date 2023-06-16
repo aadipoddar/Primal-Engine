@@ -28,7 +28,7 @@ namespace PrimalEditor.Utilities
             e.RepeatEvent = Mouse.LeftButton == MouseButtonState.Pressed;
             if (!e.RepeatEvent)
             {
-                Logger.Log(MessageType.Info, "Resized");
+                EngineAPI.ResizeRenderSurface(SurfaceId);
             }
         }
 

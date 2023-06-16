@@ -59,6 +59,8 @@ namespace PrimalEditor.DllWrapper
         [DllImport(_engineDLL)]
         public static extern IntPtr GetWindowHandle(int surfaceId);
 
+        [DllImport(_engineDLL)]
+        public static extern int ResizeRenderSurface(int surfaceId);
 
         internal static class EntityAPI
         {
