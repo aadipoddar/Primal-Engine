@@ -11,7 +11,7 @@
 #include <string>
 
 #if defined(_WIN64)
-#include <DirectXMath.h>
+	#include <DirectXMath.h>
 #endif
 
 // Common Headers
@@ -22,8 +22,8 @@
 
 
 #ifdef _DEBUG
-#define DEBUG_OP(x) x
+	#define DEBUG_OP(x) x
 #else
-#define DEBUG_OP(x) (void(0))
+	#define DEBUG_OP(x) (void(0))
 #endif // _DEBUG
 
