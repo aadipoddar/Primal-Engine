@@ -17,6 +17,7 @@
     <ClInclude Include="Platform\Platform.h" />
     <ClInclude Include="Platform\PlatformTypes.h" />
     <ClInclude Include="Graphics\Renderer.h" />
+    <ClInclude Include="Utilities\Math.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Common\PrimitiveTypes.h" />

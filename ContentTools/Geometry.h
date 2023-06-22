@@ -21,16 +21,16 @@ namespace primal::tools {
 	struct lod_group
 	{
 		std::string			name;
-		std::vector<mesh>	meshes;
+		utl::vector<mesh>	meshes;
 	};
 
 	struct scene
 	{
 		std::string				name;
-		std::vector<lod_group>	lod_groups;
+		utl::vector<lod_group>	lod_groups;
 	};
 
-	struct geometry_imoport_settings
+	struct geometry_import_settings
 	{
 		f32 smoothing_angle;
 		u8	calculate_normals;
@@ -44,7 +44,7 @@ namespace primal::tools {
 	{
 		u8*							buffer;
 		u32							buffer_size;
-		geometry_imoport_settings	settings;
+		geometry_import_settings settings;
 	};
 
 }
