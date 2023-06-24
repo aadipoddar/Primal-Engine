@@ -33,7 +33,7 @@ namespace primal::tools {
 
 		void process_normals(mesh& m, f32 smoothing_angle)
 		{
-			const f32 cos_angle { XMScalarCos(pi - smoothing_angle * pi / 180.f) };
+			const f32 cos_alpha { XMScalarCos(pi - smoothing_angle * pi / 180.f) };
 			const bool is_hard_edge { XMScalarNearEqual(smoothing_angle, 180.f, epsilon) };
 			const bool is_soft_edge { XMScalarNearEqual(smoothing_angle, 0.f, epsilon) };
 			const u32 num_indices { (u32)m.raw_indices.size() };
@@ -62,7 +62,7 @@ namespace primal::tools {
 						for (u32 k { j + 1 }; k < num_refs; ++k)
 						{
 							// This Value represents the cosine of the angle between normals
-							f32 n { 0.f };
+							f32 cos_theta { 0.f };
 							XMVECTOR n2 { XMLoadFloat3(&m.normals[refs[k]]) };
 							if (!is_soft_edge)
 							{
@@ -70,10 +70,10 @@ namespace primal::tools {
 								//		it can possible change in this loop iteration. We assume unit length
 								//		for n2.
 								//		cos(angle) = dot(n1, n2) / (||n1|| * ||n2||)
-								XMStoreFloat(&n, XMVector3Dot(n1, n2) * XMVector3ReciprocalLength(n1));
+								XMStoreFloat(&cos_theta, XMVector3Dot(n1, n2) * XMVector3ReciprocalLength(n1));
 							}
 
-							if (is_soft_edge || n >= cos_angle)
+							if (is_soft_edge || cos_theta >= cos_alpha)
 							{
 								n1 += n2;
 
@@ -146,12 +146,12 @@ namespace primal::tools {
 				const u16 normal_y { (u16)pack_float<16>(v.normal.y, -1.f, 1.f) };
 				// TODO: Pack Tangents in Sign and in x/y components
 
-				m.packed_vertex_static.emplace_back(
+				m.packed_vertices_static.emplace_back(
 					packed_vertex::vertex_static
 				{
-					v.position, { 0, 0,0 }, signs,
-					(normal_x, normal_y), {},
-					v.uv
+					v.position, { 0, 0, 0 }, signs,
+					{ normal_x, normal_y }, {},
+						v.uv
 				});
 			}
 		}
