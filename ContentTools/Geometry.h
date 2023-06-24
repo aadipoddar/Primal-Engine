@@ -3,6 +3,14 @@
 
 namespace primal::tools {
 
+	struct vertex
+	{
+		math::v4 tangent{};
+		math::v3 position{};
+		math::v3 normal{};
+		math::v2 uv{};
+	};
+
 	struct mesh
 	{
 		// Initial data
@@ -14,6 +22,8 @@ namespace primal::tools {
 		utl::vector<u32>						raw_indices;
 
 		// Intermediate Data
+		utl::vector<vertex>						vertices;
+		utl::vector<u32>						indices;
 
 		// Output Data
 	};
@@ -42,9 +52,12 @@ namespace primal::tools {
 
 	struct scene_data
 	{
-		u8*							buffer;
+		u8* buffer;
 		u32							buffer_size;
 		geometry_import_settings settings;
 	};
+
+	void process_scene(scene& scene, const geometry_import_settings& settings);
+	void pack_data(const scene& scene, scene_data& data);
 
 }
