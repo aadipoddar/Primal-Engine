@@ -44,6 +44,8 @@
                 <ComboBoxItem Content="Debug" />
                 <ComboBoxItem Content="Release" />
             </ComboBox>
+
+            <Button Content="Primtive Mesh" Click="OnCreatePrimitiveMesh_Button_Click" Margin="10,0"/>
         </StackPanel>
 
         <Grid Grid.Row="1">

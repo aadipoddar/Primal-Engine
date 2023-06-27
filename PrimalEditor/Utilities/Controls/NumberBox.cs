@@ -14,6 +14,16 @@ namespace PrimalEditor.Utilities.Controls
         private bool _captured = false;
         private bool _valueChanged = false;
 
+        public event RoutedEventHandler ValueChanged
+        {
+            add => AddHandler(ValueChangedEvent, value);
+            remove => RemoveHandler(ValueChangedEvent, value);
+        }
+
+        public static readonly RoutedEvent ValueChangedEvent =
+            EventManager.RegisterRoutedEvent(nameof(ValueChanged), RoutingStrategy.Bubble,
+                typeof(RoutedEventHandler), typeof(NumberBox));
+
         public double Multiplier
         {
             get => (double)GetValue(MultiplierProperty);
@@ -22,7 +32,7 @@ namespace PrimalEditor.Utilities.Controls
 
         public static readonly DependencyProperty MultiplierProperty =
             DependencyProperty.Register(nameof(Multiplier), typeof(double), typeof(NumberBox),
-                               new PropertyMetadata(1.0));
+                  new PropertyMetadata(1.0));
 
         public string Value
         {
@@ -32,7 +42,13 @@ namespace PrimalEditor.Utilities.Controls
 
         public static readonly DependencyProperty ValueProperty =
             DependencyProperty.Register(nameof(Value), typeof(string), typeof(NumberBox),
-                               new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault));
+                    new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault,
+                            new PropertyChangedCallback(OnValueChangeed)));
+
+        private static void OnValueChangeed(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            (d as NumberBox).RaiseEvent(new RoutedEventArgs(ValueChangedEvent));
+        }
 
         public override void OnApplyTemplate()
         {

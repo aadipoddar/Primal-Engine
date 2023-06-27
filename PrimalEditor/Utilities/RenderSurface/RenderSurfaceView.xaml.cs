@@ -1,9 +1,6 @@
-﻿using System.Diagnostics;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Interop;
-
-using PrimalEditor.Common;
 
 namespace PrimalEditor.Utilities
 {

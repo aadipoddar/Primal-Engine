@@ -1,6 +1,5 @@
 ﻿using System.Diagnostics;
 using System.Runtime.InteropServices;
-using System.Windows.Input;
 using System.Windows.Interop;
 
 using PrimalEditor.DllWrapper;
