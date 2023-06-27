@@ -26,7 +26,7 @@ namespace {
 			XMVECTOR quat { XMQuaternionRotationRollPitchYawFromVector(XMLoadFloat3A(&rot)) };
 			XMFLOAT4A rot_quat {};
 			XMStoreFloat4A(&rot_quat, quat);
-			memcpy(&info.rotation[0], &rot_quat.x, sizeof(rotation));
+			memcpy(&info.rotation[0], &rot_quat.x, sizeof(info.rotation));
 			return info;
 		}
 	};
