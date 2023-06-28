@@ -53,7 +53,7 @@ namespace PrimalEditor.Editors
     {
         public ObservableCollection<MeshRendererVertexData> Meshes { get; } = new ObservableCollection<MeshRendererVertexData>();
 
-        private Vector3D _cameraDirection = new Vector3D(0, 0, 10);
+        private Vector3D _cameraDirection = new(0, 0, -10);
         public Vector3D CameraDirection
         {
             get => _cameraDirection;
@@ -67,7 +67,7 @@ namespace PrimalEditor.Editors
             }
         }
 
-        private Point3D _cameraPosition = new Point3D(0, 0, 10);
+        private Point3D _cameraPosition = new(0, 0, 10);
         public Point3D CameraPosition
         {
             get => _cameraPosition;
@@ -76,13 +76,14 @@ namespace PrimalEditor.Editors
                 if (_cameraPosition != value)
                 {
                     _cameraPosition = value;
+                    CameraDirection = new Vector3D(-value.X, -value.Y, -value.Z);
                     OnPropertyChanged(nameof(OffsetCameraPosition));
                     OnPropertyChanged(nameof(CameraPosition));
                 }
             }
         }
 
-        private Point3D _cameraTarget = new Point3D(0, 0, 10);
+        private Point3D _cameraTarget = new(0, 0, 0);
         public Point3D CameraTarget
         {
             get => _cameraTarget;
@@ -98,7 +99,7 @@ namespace PrimalEditor.Editors
         }
 
         public Point3D OffsetCameraPosition =>
-            new Point3D(CameraPosition.X + CameraTarget.X, CameraPosition.Y + CameraTarget.Y, CameraPosition.Z + CameraTarget.Z);
+            new(CameraPosition.X + CameraTarget.X, CameraPosition.Y + CameraTarget.Y, CameraPosition.Z + CameraTarget.Z);
 
         private Color _keyLight = (Color)ColorConverter.ConvertFromString("#ffaeaeae");
         public Color KeyLight
@@ -142,7 +143,7 @@ namespace PrimalEditor.Editors
             }
         }
 
-        private Color _ambientLight = (Color)ColorConverter.ConvertFromString("ff3b3b3b");
+        private Color _ambientLight = (Color)ColorConverter.ConvertFromString("#ff3b3b3b");
         public Color AmbientLight
         {
             get => _ambientLight;
@@ -159,59 +160,63 @@ namespace PrimalEditor.Editors
         public MeshRenderer(MeshLOD lod, MeshRenderer old)
         {
             Debug.Assert(lod?.Meshes.Any() == true);
-            // Calculate vertex size minus the position and normal vectors
-            var offset = lod.Meshes[0].VertexSize - 3 * sizeof(float) - sizeof(int) - 2 * sizeof(short);
 
-            // In order to set up camera position and target properly, we need to figure out how big
-            // this object is that we're rendering. Hence we need to know its bounding box
+            // Calculate vertex size minus the position and normal vectors (by skipping not relevent data)
+            int offset = lod.Meshes[0].VertexSize - 3 * sizeof(float) - sizeof(int) - 2 * sizeof(short);
+
+            // In order to set up camera position and target properly, we need to figure out how big this object is
+            // that we're rendering. Hence, we need to know its bounding box.
             double minX, minY, minZ; minX = minY = minZ = double.MaxValue;
             double maxX, maxY, maxZ; maxX = maxY = maxZ = double.MinValue;
-            Vector3D avgNormal = new Vector3D();
+            Vector3D avgNormal = new();
 
             // This is to unpack the packed normals
-            var intervals = 2.0f / ((1 << 16) - 1);
+            float intervals = 2.0f / ((1 << 16) - 1);
 
-            foreach (var mesh in lod.Meshes)
+            foreach (Mesh mesh in lod.Meshes)
             {
-                var vertexData = new MeshRendererVertexData();
-
+                MeshRendererVertexData vertexData = new();
                 // Unpack all vertices
-                using (var reader = new BinaryReader(new MemoryStream(mesh.Vertices)))
+                using (BinaryReader reader = new(new MemoryStream(mesh.Vertices)))
+                {
                     for (int i = 0; i < mesh.VertexCount; ++i)
                     {
-                        // Read Position
-                        var posX = reader.ReadSingle();
-                        var posY = reader.ReadSingle();
-                        var posZ = reader.ReadSingle();
-                        var signs = (reader.ReadUInt32() >> 24) & 0x000000ff;
+                        // Read positions
+                        float posX = reader.ReadSingle();
+                        float posY = reader.ReadSingle();
+                        float posZ = reader.ReadSingle();
+                        uint signs = (reader.ReadUInt32() >> 24) & 0x000000ff;
                         vertexData.Positions.Add(new Point3D(posX, posY, posZ));
 
-                        // Adjust the Bounding Box
+                        // Adjust the bounding box
                         minX = Math.Min(minX, posX); maxX = Math.Max(maxX, posX);
                         minY = Math.Min(minY, posY); maxY = Math.Max(maxY, posY);
-                        minZ = Math.Min(maxZ, posZ); maxZ = Math.Max(maxZ, posZ);
+                        minZ = Math.Min(minZ, posZ); maxZ = Math.Max(maxZ, posZ);
 
                         // Read normals
-                        var nrmX = reader.ReadUInt16() * intervals - 1.0f;
-                        var nrmY = reader.ReadUInt16() * intervals - 1.0f;
-                        var nrmZ = Math.Sqrt(Math.Clamp(1f - (nrmX * nrmX + nrmY * nrmY), 0f, 1f)) * ((signs & 0x2) - 1f);
-                        var normal = new Vector3D(nrmX, nrmY, nrmZ);
+                        float nrmX = reader.ReadUInt16() * intervals - 1.0f;
+                        float nrmY = reader.ReadUInt16() * intervals - 1.0f;
+                        double nrmZ = Math.Sqrt(Math.Clamp(1f - (nrmX * nrmX + nrmY * nrmY), 0f, 1f)) * ((signs & 0x2) - 1f);
+                        Vector3D normal = new(nrmX, nrmY, nrmZ);
                         normal.Normalize();
                         vertexData.Normals.Add(normal);
                         avgNormal += normal;
 
                         // Read UVs (skip tangent and joint data)
                         reader.BaseStream.Position += (offset - sizeof(float) * 2);
-                        var u = reader.ReadSingle();
-                        var v = reader.ReadSingle();
+                        float u = reader.ReadSingle();
+                        float v = reader.ReadSingle();
                         vertexData.UVs.Add(new Point(u, v));
                     }
+                }
 
-                using (var reader = new BinaryReader(new MemoryStream(mesh.Indices)))
+                using (BinaryReader reader = new(new MemoryStream(mesh.Indices)))
+                {
                     if (mesh.IndexSize == sizeof(short))
                         for (int i = 0; i < mesh.IndexCount; ++i) vertexData.Indices.Add(reader.ReadUInt16());
                     else
                         for (int i = 0; i < mesh.IndexCount; ++i) vertexData.Indices.Add(reader.ReadInt32());
+                }
 
                 vertexData.Positions.Freeze();
                 vertexData.Normals.Freeze();
@@ -220,7 +225,7 @@ namespace PrimalEditor.Editors
                 Meshes.Add(vertexData);
             }
 
-            // Set Camera target and position
+            // set camera target and position
             if (old != null)
             {
                 CameraTarget = old.CameraTarget;
@@ -228,11 +233,11 @@ namespace PrimalEditor.Editors
             }
             else
             {
-                // Compute bounding box dimensions
-                var width = maxX - minX;
-                var height = maxY - minY;
-                var depth = maxZ - minZ;
-                var radius = new Vector3D(height, width, depth).Length * 1.2;
+                // compute bounding box dimensions
+                double width = maxX - minX;
+                double height = maxY - minY;
+                double depth = maxZ - minZ;
+                double radius = new Vector3D(height, width, depth).Length * 1.2;
 
                 if (avgNormal.Length > 0.8)
                 {
@@ -250,9 +255,9 @@ namespace PrimalEditor.Editors
         }
     }
 
-    class GeometryEditor : ViewModelBase, IAssetEdtor
+    class GeometryEditor : ViewModelBase, IAssetEditor
     {
-        public Content.Asset Asset => Geometry;
+        public Asset Asset => Geometry;
 
         private Content.Geometry _geometry;
         public Content.Geometry Geometry
@@ -282,7 +287,7 @@ namespace PrimalEditor.Editors
             }
         }
 
-        public void SetAsset(Content.Asset asset)
+        public void SetAsset(Asset asset)
         {
             Debug.Assert(asset is Content.Geometry);
             if (asset is Content.Geometry geometry)

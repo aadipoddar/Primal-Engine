@@ -10,7 +10,7 @@ namespace primal::tools {
 		void recalculate_normals(mesh& m)
 		{
 			const u32 num_indices { (u32)m.raw_indices.size() };
-			m.normals.reserve(num_indices);
+			m.normals.resize(num_indices);
 
 			for (u32 i { 0 }; i < num_indices; ++i)
 			{
@@ -106,11 +106,11 @@ namespace primal::tools {
 			for (u32 i { 0 }; i < num_indices; ++i)
 				idx_ref[old_indices[i]].emplace_back(i);
 
-			for (u32 i { 0 }; i < num_indices; ++i)
+			for (u32 i { 0 }; i < num_vertices; ++i)
 			{
 				auto& refs { idx_ref[i] };
 				u32 num_refs { (u32)refs.size() };
-				for (u32 j { 0 }; j < num_indices; ++j)
+				for (u32 j { 0 }; j < num_refs; ++j)
 				{
 					m.indices[refs[j]] = (u32)m.vertices.size();
 					vertex& v { old_vertices[old_indices[refs[j]]] };

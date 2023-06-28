@@ -2,7 +2,7 @@
 
 namespace PrimalEditor.Editors
 {
-    interface IAssetEdtor
+    interface IAssetEditor
     {
         Asset Asset { get; }
 
