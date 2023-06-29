@@ -36,6 +36,7 @@ namespace PrimalEditor.Content
 
             var primitiveType = (PrimitveMeshType)primalTypeComboBox.SelectedIndex;
             var info = new PrimitiveInitInfo() { Type = primitiveType };
+            var smoothingAngle = 0;
 
             switch (primitiveType)
             {
@@ -54,10 +55,11 @@ namespace PrimalEditor.Content
                 case PrimitveMeshType.UVSphere:
                     {
                         info.SegmentX = (int)xSliderUvSphere.Value;
-                        info.SegmentY= (int)ySliderUvSphere.Value;
+                        info.SegmentY = (int)ySliderUvSphere.Value;
                         info.Size.X = Value(xScalarBoxUvSphere, 0.001f);
                         info.Size.Y = Value(yScalarBoxUvSphere, 0.001f);
                         info.Size.Z = Value(zScalarBoxUvSphere, 0.001f);
+                        smoothingAngle = (int)angleSliderUvSphere.Value;
                         break;
                     }
 
@@ -72,6 +74,7 @@ namespace PrimalEditor.Content
             }
 
             var geometry = new Geometry();
+            geometry.ImportSettings.SmootingAngle = smoothingAngle;
             ContentToolsAPI.CreatePrimitiveMesh(geometry, info);
             (DataContext as GeometryEditor).SetAsset(geometry);
             OnTexture_CheckBox_Click(textureCheckBox, null);
