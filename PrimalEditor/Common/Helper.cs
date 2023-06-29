@@ -41,7 +41,7 @@ namespace PrimalEditor.Common
             return sb.ToString(0, length);
         }
 
-        public static object SanitizeFileName(string name)
+        public static string SanitizeFileName(string name)
         {
             var path = new StringBuilder(name.Substring(0, name.LastIndexOf(Path.DirectorySeparatorChar) + 1));
             var file = new StringBuilder(name[(name.LastIndexOf(Path.DirectorySeparatorChar) + 1)..]);
