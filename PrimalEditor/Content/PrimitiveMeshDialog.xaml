@@ -116,7 +116,7 @@
                            Foreground="{StaticResource Editor.FontBrush}"/>
                 </Grid>
 
-                <Button Content="Save" Width="96" Margin="5,0"/>
+                <Button Content="Save" Width="96" Margin="5,0" Click="OnSave_Button_Click"/>
             </StackPanel>
 
             <!-- CUBE SETTINGS -->
@@ -201,7 +201,7 @@
                            Foreground="{StaticResource Editor.FontBrush}"/>
                 </Grid>
 
-                <Button Content="Save" Width="96" Margin="5,0"/>
+                <Button Content="Save" Width="96" Margin="5,0" Click="OnSave_Button_Click"/>
             </StackPanel>
 
             <!-- ICOSPHERE SETTINGS -->

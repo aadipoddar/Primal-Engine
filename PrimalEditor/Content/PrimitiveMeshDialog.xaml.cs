@@ -1,12 +1,16 @@
-﻿using System.IO;
+﻿using System.Diagnostics;
+using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
+using Microsoft.Win32;
+
 using PrimalEditor.ContentToolsAPIStructs;
 using PrimalEditor.DllWrapper;
 using PrimalEditor.Editors;
+using PrimalEditor.GameProject;
 using PrimalEditor.Utilities.Controls;
 
 namespace PrimalEditor.Content
@@ -130,6 +134,23 @@ namespace PrimalEditor.Content
             foreach (var mesh in vm.MeshRenderer.Meshes)
             {
                 mesh.Diffuse = brush;
+            }
+        }
+
+        private void OnSave_Button_Click(object sender, RoutedEventArgs e)
+        {
+            var dlg = new SaveFileDialog()
+            {
+                InitialDirectory = Project.Current.ContentPath,
+                Filter = "Asset file (*.asset)|*.asset"
+            };
+
+            if (dlg.ShowDialog() == true)
+            {
+                Debug.Assert(!string.IsNullOrEmpty(dlg.FileName));
+                var asset = (DataContext as IAssetEditor).Asset;
+                Debug.Assert(asset != null);
+                asset.Save(dlg.FileName);
             }
         }
     }
