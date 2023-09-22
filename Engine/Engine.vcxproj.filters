@@ -18,6 +18,8 @@
     <ClInclude Include="Platform\PlatformTypes.h" />
     <ClInclude Include="Graphics\Renderer.h" />
     <ClInclude Include="Utilities\Math.h" />
+    <ClInclude Include="Graphics\GraphicsPlatformInterface.h" />
+    <ClInclude Include="Graphics\Direct3D12\D3D12Core.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Common\PrimitiveTypes.h" />
@@ -28,5 +30,10 @@
     <ClCompile Include="Core\Engine.cpp" />
     <ClCompile Include="Content\ContentLoader.cpp" />
     <ClCompile Include="Platform\Platform.cpp" />
+    <ClCompile Include="Graphics\Renderer.cpp" />
+    <ClCompile Include="Graphics\Direct3D12\D3D12Interface.h" />
+    <ClCompile Include="Graphics\Direct3D12\D3D12Interface.cpp" />
+    <ClCompile Include="Graphics\Direct3D12\D3D12Core.cpp" />
+    <ClCompile Include="Graphics\Direct3D12\D3D12CommonHeaders.h" />
   </ItemGroup>
 </Project>

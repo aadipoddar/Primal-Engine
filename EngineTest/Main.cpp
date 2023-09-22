@@ -10,6 +10,9 @@
 #elif TEST_WINDOW
 #include "TestWindow.h"
 
+#elif TEST_RENDERER
+#include "TestRenderer.h"
+
 #else
 #error One of the tests need to be enabled
 
