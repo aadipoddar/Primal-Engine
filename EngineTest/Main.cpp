@@ -1,72 +1,73 @@
 #pragma comment(lib, "Engine.lib")
 
 #define TEST_ENTITY_COMPONENTS 0
-#define TEST_WINDOW 1
+#define TEST_WINDOW 0
+#define TEST_RENDERER 1
 
 
 #if TEST_ENTITY_COMPONENTS
-#include "TestEntityComponents.h"
+	#include "TestEntityComponents.h"
 
 #elif TEST_WINDOW
-#include "TestWindow.h"
+	#include "TestWindow.h"
 
 #elif TEST_RENDERER
-#include "TestRenderer.h"
+	#include "TestRenderer.h"
 
 #else
-#error One of the tests need to be enabled
+	#error One of the tests need to be enabled
 
 #endif
 
 
 #ifdef _WIN64
 
-#include <Windows.h>
+	#include <Windows.h>
 
-int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
-{
-#if _DEBUG
-	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
-#endif
-
-	engine_test test {};
-	if (test.initialize())
+	int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int)
 	{
-		MSG msg {};
-		bool is_running = true;
-		while (is_running)
+	#if _DEBUG
+		_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
+	#endif
+
+		engine_test test {};
+		if (test.initialize())
 		{
-			while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
+			MSG msg {};
+			bool is_running = true;
+			while (is_running)
 			{
-				TranslateMessage(&msg);
-				DispatchMessage(&msg);
-				is_running &= (msg.message != WM_QUIT);
+				while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
+				{
+					TranslateMessage(&msg);
+					DispatchMessage(&msg);
+					is_running &= (msg.message != WM_QUIT);
+				}
+
+				test.run();
 			}
-
-			test.run();
 		}
-	}
 
-	test.shutdown();
-	return 0;
-}
+		test.shutdown();
+		return 0;
+	}
 
 #else
 
-int main()
-{
-#if _DEBUG
-	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF); // Look for memory leaks and set a flag
-#endif
-
-	engine_test test {};
-
-	if (test.initialize())
+	int main()
 	{
-		test.run();
-	}
+	#if _DEBUG
+		_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF); // Look for memory leaks and set a flag
+	#endif
 
-	test.shutdown();
-}
+		engine_test test {};
+
+		if (test.initialize())
+		{
+			test.run();
+		}
+
+		test.shutdown();
+	}
 
 #endif // _WIN64
