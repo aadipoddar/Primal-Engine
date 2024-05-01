@@ -3,7 +3,7 @@
 #include "..\Graphics\Renderer.h"
 #include "TestRenderer.h"
 
-#ifdef TEST_RENDERER
+#if TEST_RENDERER
 
 using namespace primal;
 
@@ -62,10 +62,10 @@ bool engine_test::initialize()
 
 	platform::window_init_info info[]
 	{
-		{&win_proc, nullptr, L"Test Window 1", 100, 100, 400, 800 },
-		{&win_proc, nullptr, L"Test Window 2", 150, 150, 800, 400 },
-		{&win_proc, nullptr, L"Test Window 3", 200, 200, 400, 400 },
-		{&win_proc, nullptr, L"Test Window 4", 250, 250, 800, 600 }
+		{&win_proc, nullptr, L"Render Window 1", 100, 100, 400, 800 },
+		{&win_proc, nullptr, L"Render Window 2", 150, 150, 800, 400 },
+		{&win_proc, nullptr, L"Render Window 3", 200, 200, 400, 400 },
+		{&win_proc, nullptr, L"Render Window 4", 250, 250, 800, 600 }
 	};
 	static_assert(_countof(info) == _countof(_surfaces));
 

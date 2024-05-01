@@ -20,6 +20,7 @@
     <ClInclude Include="Utilities\Math.h" />
     <ClInclude Include="Graphics\GraphicsPlatformInterface.h" />
     <ClInclude Include="Graphics\Direct3D12\D3D12Core.h" />
+    <ClInclude Include="Graphics\Direct3D12\D3D12Resources.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Common\PrimitiveTypes.h" />
@@ -35,5 +36,6 @@
     <ClCompile Include="Graphics\Direct3D12\D3D12Interface.cpp" />
     <ClCompile Include="Graphics\Direct3D12\D3D12Core.cpp" />
     <ClCompile Include="Graphics\Direct3D12\D3D12CommonHeaders.h" />
+    <ClCompile Include="Graphics\Direct3D12\D3D12Resources.cpp" />
   </ItemGroup>
 </Project>
