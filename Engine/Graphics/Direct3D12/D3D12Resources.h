@@ -32,6 +32,7 @@ namespace primal::graphics::d3d12 {
 
 		bool initialize(u32 capacity, bool is_shader_visible);
 		void release();
+		void process_deferred_free(u32 frame_idx);
 
 		[[nodiscard]] descriptor_handle allocate();
 		void free(descriptor_handle& handle);
@@ -50,6 +51,7 @@ namespace primal::graphics::d3d12 {
 		D3D12_CPU_DESCRIPTOR_HANDLE _cpu_start{};
 		D3D12_GPU_DESCRIPTOR_HANDLE _gpu_start{};
 		std::unique_ptr<u32[]> _free_handles{};
+		utl::vector<u32> _deferred_free_indicies[frame_buffer_count]{};
 		std::mutex _mutex{};
 		u32 _capacity{ 0 };
 		u32 _size{ 0 };

@@ -5,7 +5,6 @@ namespace primal::graphics::d3d12 {
 
 	////// DESCRIPTOR HEAP /////
 
-
 	bool descriptor_heap::initialize(u32 capacity, bool is_shader_visible)
 	{
 		std::lock_guard lock{ _mutex };
@@ -41,6 +40,7 @@ namespace primal::graphics::d3d12 {
 		_size = 0;
 
 		for (u32 i{ 0 }; i < capacity; ++i) _free_handles[i] = i;
+		DEBUG_OP(for (u32 i{ 0 }; i < frame_buffer_count; ++i) assert(_deferred_free_indicies[i].empty()));
 
 		_descriptor_size = device->GetDescriptorHandleIncrementSize(_type);
 		_cpu_start = _heap->GetCPUDescriptorHandleForHeapStart();
@@ -52,6 +52,25 @@ namespace primal::graphics::d3d12 {
 
 	void descriptor_heap::release()
 	{
+		assert(!_size);
+		core::deferred_release(_heap);
+	}
+
+	void descriptor_heap::process_deferred_free(u32 frame_idx)
+	{
+		std::lock_guard lock{ _mutex };
+		assert(frame_idx < frame_buffer_count);
+
+		utl::vector<u32>& indices{ _deferred_free_indicies[frame_idx] };
+		if (!indices.empty())
+		{
+			for (auto index:indices)
+			{
+				--_size;
+				_free_handles[_size] = index;
+			}
+			indices.clear();
+		}
 	}
 
 	descriptor_handle descriptor_heap::allocate()
@@ -72,7 +91,7 @@ namespace primal::graphics::d3d12 {
 		}
 
 		DEBUG_OP(handle.container = this);
-		DEBUG_OP(handle.index= index);
+		DEBUG_OP(handle.index = index);
 		return handle;
 	}
 
@@ -88,6 +107,9 @@ namespace primal::graphics::d3d12 {
 		const u32 index{ (u32)(handle.cpu.ptr - _cpu_start.ptr) / _descriptor_size };
 		assert(handle.index == index);
 
+		const u32 frame_index{ core::current_frame_index() };
+		_deferred_free_indicies[frame_index].push_back(index);
+		core::set_deferred_releases_flag();
 		handle = {};
 	}
 
