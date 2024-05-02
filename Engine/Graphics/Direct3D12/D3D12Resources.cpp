@@ -11,6 +11,7 @@ namespace primal::graphics::d3d12 {
 		assert(capacity && capacity < D3D12_MAX_SHADER_VISIBLE_DESCRIPTOR_HEAP_SIZE_TIER_2);
 		assert(!(_type == D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER &&
 			capacity > D3D12_MAX_SHADER_VISIBLE_SAMPLER_HEAP_SIZE));
+
 		if (_type == D3D12_DESCRIPTOR_HEAP_TYPE_DSV ||
 			_type == D3D12_DESCRIPTOR_HEAP_TYPE_RTV)
 		{
@@ -64,7 +65,7 @@ namespace primal::graphics::d3d12 {
 		utl::vector<u32>& indices{ _deferred_free_indicies[frame_idx] };
 		if (!indices.empty())
 		{
-			for (auto index:indices)
+			for (auto index : indices)
 			{
 				--_size;
 				_free_handles[_size] = index;
@@ -107,8 +108,8 @@ namespace primal::graphics::d3d12 {
 		const u32 index{ (u32)(handle.cpu.ptr - _cpu_start.ptr) / _descriptor_size };
 		assert(handle.index == index);
 
-		const u32 frame_index{ core::current_frame_index() };
-		_deferred_free_indicies[frame_index].push_back(index);
+		const u32 frame_idx{ core::current_frame_index() };
+		_deferred_free_indicies[frame_idx].push_back(index);
 		core::set_deferred_releases_flag();
 		handle = {};
 	}
