@@ -9,7 +9,13 @@ namespace primal::graphics::d3d12 {
 	{
 		pi.initialize = core::initialize;
 		pi.shutdown = core::shutdown;
-		pi.render = core::render;
+
+		pi.surface.create = core::create_surface;
+		pi.surface.remove = core::remove_surface;
+		pi.surface.resize = core::resize_surface;
+		pi.surface.width = core::surface_width;
+		pi.surface.height = core::surface_height;
+		pi.surface.render = core::render_surface;
 	}
 
 }

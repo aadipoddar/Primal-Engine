@@ -48,15 +48,15 @@ namespace primal::graphics::d3d12 {
 
 	private:
 		ID3D12DescriptorHeap* _heap;
-		D3D12_CPU_DESCRIPTOR_HANDLE _cpu_start{};
-		D3D12_GPU_DESCRIPTOR_HANDLE _gpu_start{};
-		std::unique_ptr<u32[]> _free_handles{};
-		utl::vector<u32> _deferred_free_indicies[frame_buffer_count]{};
-		std::mutex _mutex{};
-		u32 _capacity{ 0 };
-		u32 _size{ 0 };
-		u32 _descriptor_size{ };
-		const D3D12_DESCRIPTOR_HEAP_TYPE _type{};
+		D3D12_CPU_DESCRIPTOR_HANDLE			_cpu_start{};
+		D3D12_GPU_DESCRIPTOR_HANDLE			_gpu_start{};
+		std::unique_ptr<u32[]>				_free_handles{};
+		utl::vector<u32>					_deferred_free_indicies[frame_buffer_count]{};
+		std::mutex							_mutex{};
+		u32									_capacity{ 0 };
+		u32									_size{ 0 };
+		u32									_descriptor_size{ };
+		const D3D12_DESCRIPTOR_HEAP_TYPE	_type{};
 	};
 
 }

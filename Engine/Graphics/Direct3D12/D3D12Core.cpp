@@ -1,5 +1,6 @@
 #include "D3D12Core.h"
 #include "D3D12Resources.h"
+#include "D3D12Surface.h"
 
 using namespace Microsoft::WRL;
 
@@ -161,24 +162,25 @@ namespace primal::graphics::d3d12::core {
 			ID3D12CommandQueue* _cmd_queue{ nullptr };
 			ID3D12GraphicsCommandList6* _cmd_list{ nullptr };
 			ID3D12Fence1* _fence{ nullptr };
-			u64 _fence_value{ 0 };
-			command_frame _cmd_frames[frame_buffer_count]{};
-			HANDLE _fence_event{ nullptr };
-			u32 _frame_index{ 0 };
+			u64							_fence_value{ 0 };
+			command_frame				_cmd_frames[frame_buffer_count]{};
+			HANDLE						_fence_event{ nullptr };
+			u32							_frame_index{ 0 };
 		};
 
 		ID3D12Device8* main_device{ nullptr };
 		IDXGIFactory7* dxgi_fctory{ nullptr };
-		d3d12_command gfx_command;
+		d3d12_command				gfx_command;
+		utl::vector<d3d12_surface>  surfaces;
 
 		descriptor_heap rtv_desc_heap{ D3D12_DESCRIPTOR_HEAP_TYPE_RTV };
 		descriptor_heap dsv_desc_heap{ D3D12_DESCRIPTOR_HEAP_TYPE_DSV };
 		descriptor_heap srv_desc_heap{ D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV };
 		descriptor_heap uav_desc_heap{ D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV };
 
-		utl::vector<IUnknown*> deferred_releases[frame_buffer_count]{};
-		u32 deferred_releases_flag[frame_buffer_count]{};
-		std::mutex deferred_releases_mutx{};
+		utl::vector<IUnknown*>	deferred_releases[frame_buffer_count]{};
+		u32						deferred_releases_flag[frame_buffer_count]{};
+		std::mutex				deferred_releases_mutex{};
 
 		constexpr DXGI_FORMAT render_target_format{ DXGI_FORMAT_R8G8B8A8_UNORM_SRGB };
 		constexpr D3D_FEATURE_LEVEL minimum_feature_level{ D3D_FEATURE_LEVEL_11_0 };
@@ -236,7 +238,7 @@ namespace primal::graphics::d3d12::core {
 
 		void __declspec(noinline) process_deferred_releases(u32 frame_idx)
 		{
-			std::lock_guard lock{ deferred_releases_mutx };
+			std::lock_guard lock{ deferred_releases_mutex };
 
 			// NOTE: We clear this flag in the beginning. If we'd clear it at the end
 			//	then it	might overwrite some other thread that was trying to set it.
@@ -264,7 +266,7 @@ namespace primal::graphics::d3d12::core {
 		void deferred_release(IUnknown* resource)
 		{
 			const u32 frame_idx{ current_frame_index() };
-			std::lock_guard lock{ deferred_releases_mutx };
+			std::lock_guard lock{ deferred_releases_mutex };
 			deferred_releases[frame_idx].push_back(resource);
 			set_deferred_releases_flag();
 		}
@@ -389,7 +391,51 @@ namespace primal::graphics::d3d12::core {
 		release(main_device);
 	}
 
-	void render()
+	ID3D12Device* const device() { return main_device; }
+
+	descriptor_heap& rtv_heap() { return rtv_desc_heap; }
+	descriptor_heap& dsv_heap() { return dsv_desc_heap; }
+	descriptor_heap& srv_heap() { return srv_desc_heap; }
+	descriptor_heap& uav_heap() { return uav_desc_heap; }
+
+	DXGI_FORMAT default_render_target_format() { return render_target_format; }
+
+	u32 current_frame_index() { return gfx_command.frame_index(); }
+
+	void set_deferred_releases_flag() { deferred_releases_flag[current_frame_index()] = 1; }
+
+	surface create_surface(platform::window window)
+	{
+		surfaces.emplace_back(window);
+		surface_id id{ (u32)surfaces.size() - 1 };
+		surfaces[id].create_swap_chain(dxgi_fctory, gfx_command.command_queue(), render_target_format);
+		return surface{ id };
+	}
+
+	void remove_surface(surface_id id)
+	{
+		gfx_command.flush();
+		//TODO: Use Proper removal of surfaces
+		surfaces[id].~d3d12_surface();
+	}
+
+	void resize_surface(surface_id id, u32, u32)
+	{
+		gfx_command.flush();
+		surfaces[id].resize();
+	}
+
+	u32 surface_width(surface_id id)
+	{
+		return surfaces[id].width();
+	}
+
+	u32 surface_height(surface_id id)
+	{
+		return surfaces[id].height();
+	}
+
+	void render_surface(surface_id id)
 	{
 		// Wait for the GPU to finish with the command allocator and
 		// reset the allocator once the GPU is done with it.
@@ -403,6 +449,10 @@ namespace primal::graphics::d3d12::core {
 			process_deferred_releases(frame_idx);
 		}
 
+		const d3d12_surface& surface{ surfaces[id] };
+
+		// Presenting swap chain buffers happens in lockstep with frame buffers
+		surface.present();
 		// Record Commands
 		// ...
 		// 
@@ -410,17 +460,4 @@ namespace primal::graphics::d3d12::core {
 		// signals and increment the fence value for the next frame.
 		gfx_command.end_frame();
 	}
-
-	ID3D12Device* const device() { return main_device; }
-
-	descriptor_heap& rtv_heap() { return rtv_desc_heap; }
-	descriptor_heap& dsv_heap() { return dsv_desc_heap; }
-	descriptor_heap& srv_heap() { return srv_desc_heap; }
-	descriptor_heap& uav_heap() { return uav_desc_heap; }
-
-	DXGI_FORMAT default_render_target_format() { return render_target_format; }
-
-	u32 current_frame_index() { return gfx_command.frame_index(); }
-
-	void set_deferred_releases_flag() { deferred_releases_flag[current_frame_index()] = 1; }
 }
