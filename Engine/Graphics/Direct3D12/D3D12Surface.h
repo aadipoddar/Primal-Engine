@@ -38,6 +38,10 @@ namespace primal::graphics::d3d12 {
 			}
 			return *this;
 		}
+
+#else
+		DISABLE_COPY_AND_MOVE(d3d12_surface);
+
 #endif // USE_STL_VECTOR
 
 

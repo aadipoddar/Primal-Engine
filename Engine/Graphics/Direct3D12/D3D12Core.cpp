@@ -168,10 +168,12 @@ namespace primal::graphics::d3d12::core {
 			u32							_frame_index{ 0 };
 		};
 
+		using surface_collection = utl::free_list<d3d12_surface>;
+
 		ID3D12Device8* main_device{ nullptr };
 		IDXGIFactory7* dxgi_fctory{ nullptr };
-		d3d12_command				gfx_command;
-		utl::vector<d3d12_surface>  surfaces;
+		d3d12_command		gfx_command;
+		surface_collection	surfaces;
 
 		descriptor_heap rtv_desc_heap{ D3D12_DESCRIPTOR_HEAP_TYPE_RTV };
 		descriptor_heap dsv_desc_heap{ D3D12_DESCRIPTOR_HEAP_TYPE_DSV };
@@ -182,7 +184,7 @@ namespace primal::graphics::d3d12::core {
 		u32						deferred_releases_flag[frame_buffer_count]{};
 		std::mutex				deferred_releases_mutex{};
 
-		constexpr DXGI_FORMAT render_target_format{ DXGI_FORMAT_R8G8B8A8_UNORM_SRGB };
+		constexpr DXGI_FORMAT		render_target_format{ DXGI_FORMAT_R8G8B8A8_UNORM_SRGB };
 		constexpr D3D_FEATURE_LEVEL minimum_feature_level{ D3D_FEATURE_LEVEL_11_0 };
 
 		bool failed_init()
@@ -406,8 +408,7 @@ namespace primal::graphics::d3d12::core {
 
 	surface create_surface(platform::window window)
 	{
-		surfaces.emplace_back(window);
-		surface_id id{ (u32)surfaces.size() - 1 };
+		surface_id id{ surfaces.add(window) };
 		surfaces[id].create_swap_chain(dxgi_fctory, gfx_command.command_queue(), render_target_format);
 		return surface{ id };
 	}
@@ -415,8 +416,7 @@ namespace primal::graphics::d3d12::core {
 	void remove_surface(surface_id id)
 	{
 		gfx_command.flush();
-		//TODO: Use Proper removal of surfaces
-		surfaces[id].~d3d12_surface();
+		surfaces.remove(id);
 	}
 
 	void resize_surface(surface_id id, u32, u32)

@@ -1,6 +1,6 @@
 #pragma once
 
-#define USE_STL_VECTOR 1
+#define USE_STL_VECTOR 0
 #define USE_STL_DEQUE 1
 
 #if USE_STL_VECTOR
@@ -25,6 +25,18 @@ namespace primal::utl {
 		}
 	}
 }
+
+#else
+
+#include "Vector.h"
+
+namespace primal::utl {
+	template<typename T> void erase_unordered(vector<T>& v, size_t index)
+	{
+		v.erase_unordered(index);
+	}
+}
+
 #endif
 
 #if USE_STL_DEQUE
