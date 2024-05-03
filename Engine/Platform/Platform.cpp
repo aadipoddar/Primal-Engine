@@ -9,45 +9,18 @@ namespace primal::platform {
 
 		struct window_info
 		{
-			HWND	hwnd { nullptr };
-			RECT	client_area { 0, 0, 1920, 1080 };
-			RECT	fullscreen_area {};
-			POINT	top_left { 0, 0 };
-			DWORD	style { WS_VISIBLE };
-			bool	is_fullscreen { false };
-			bool	is_closed { false };
+			HWND	hwnd{ nullptr };
+			RECT	client_area{ 0, 0, 1920, 1080 };
+			RECT	fullscreen_area{};
+			POINT	top_left{ 0, 0 };
+			DWORD	style{ WS_VISIBLE };
+			bool	is_fullscreen{ false };
+			bool	is_closed{ false };
+
+			~window_info() { assert(!is_fullscreen); }
 		};
 
-		utl::vector<window_info> windows;
-
-		///////////////////////////////////////////////////////////////////
-		// TODO: This part will be handled by a free-list container later
-		utl::vector<u32> available_slots;
-
-		u32 add_to_windows(window_info info)
-		{
-			u32 id { u32_invalid_id };
-			if (available_slots.empty())
-			{
-				id = (u32)windows.size();
-				windows.emplace_back(info);
-			}
-			else
-			{
-				id = available_slots.back();
-				available_slots.pop_back();
-				assert(id != u32_invalid_id);
-				windows[id] = info;
-			}
-			return id;
-		}
-
-		void remove_from_windows(u32 id)
-		{
-			assert(id < windows.size());
-			available_slots.emplace_back(id);
-		}
-		///////////////////////////////////////////////////////////////////
+		utl::free_list<window_info> windows;
 
 		window_info& get_from_id(window_id id)
 		{
@@ -58,7 +31,7 @@ namespace primal::platform {
 
 		window_info& get_from_handle(window_handle handle)
 		{
-			const window_id id { (id::id_type)GetWindowLongPtr(handle, GWLP_USERDATA) };
+			const window_id id{ (id::id_type)GetWindowLongPtr(handle, GWLP_USERDATA) };
 			return get_from_id(id);
 		}
 
@@ -66,29 +39,29 @@ namespace primal::platform {
 		LRESULT CALLBACK internal_window_proc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 		{
 			// Handle messages
-			window_info* info { nullptr };
+			window_info* info{ nullptr };
 			switch (msg)
 			{
-				case WM_DESTROY:
-					get_from_handle(hwnd).is_closed = true;
-					break;
-				case WM_EXITSIZEMOVE:
+			case WM_DESTROY:
+				get_from_handle(hwnd).is_closed = true;
+				break;
+			case WM_EXITSIZEMOVE:
+				info = &get_from_handle(hwnd);
+				break;
+			case WM_SIZE:
+				if (wparam == SIZE_MAXIMIZED)
+				{
 					info = &get_from_handle(hwnd);
-					break;
-				case WM_SIZE:
-					if (wparam == SIZE_MAXIMIZED)
-					{
-						info = &get_from_handle(hwnd);
-					}
-					break;
-				case WM_SYSCOMMAND:
-					if (wparam == SC_RESTORE)
-					{
-						info = &get_from_handle(hwnd);
-					}
-					break;
-				default:
-					break;
+				}
+				break;
+			case WM_SYSCOMMAND:
+				if (wparam == SC_RESTORE)
+				{
+					info = &get_from_handle(hwnd);
+				}
+				break;
+			default:
+				break;
 			}
 
 			if (info)
@@ -97,7 +70,7 @@ namespace primal::platform {
 				GetClientRect(info->hwnd, info->is_fullscreen ? &info->fullscreen_area : &info->client_area);
 			}
 
-			LONG_PTR long_ptr { GetWindowLongPtr(hwnd, 0) }; // Points to a buffer and at index 0 it reserves the bytes for the callback
+			LONG_PTR long_ptr{ GetWindowLongPtr(hwnd, 0) }; // Points to a buffer and at index 0 it reserves the bytes for the callback
 			// Get a pointer to the callback function then if it is not null call it otherwise call the default
 			return long_ptr ? ((window_proc)long_ptr)(hwnd, msg, wparam, lparam) : DefWindowProc(hwnd, msg, wparam, lparam);
 		}
@@ -105,18 +78,18 @@ namespace primal::platform {
 		void resize_window(const window_info& info, const RECT& area)
 		{
 			// Set the window size for the device
-			RECT window_rect { area };
+			RECT window_rect{ area };
 			AdjustWindowRect(&window_rect, info.style, FALSE);
 
-			const s32 width { window_rect.right - window_rect.right };
-			const s32 height { window_rect.bottom - window_rect.top };
+			const s32 width{ window_rect.right - window_rect.right };
+			const s32 height{ window_rect.bottom - window_rect.top };
 
 			MoveWindow(info.hwnd, info.top_left.x, info.top_left.y, width, height, true);
 		}
 
 		void resize_window(window_id id, u32 width, u32 height)
 		{
-			window_info& info { get_from_id(id) };
+			window_info& info{ get_from_id(id) };
 
 			if (info.style & WS_CHILD)
 			{
@@ -125,7 +98,7 @@ namespace primal::platform {
 
 			else
 			{
-				RECT& area { info.is_fullscreen ? info.fullscreen_area : info.client_area };
+				RECT& area{ info.is_fullscreen ? info.fullscreen_area : info.client_area };
 				area.bottom = area.top + height;
 				area.right = area.left + width;
 
@@ -136,7 +109,7 @@ namespace primal::platform {
 		void set_window_fullscreen(window_id id, bool is_fullscreen)
 		{
 			// Get reference to the window info instance
-			window_info& info { get_from_id(id) };
+			window_info& info{ get_from_id(id) };
 
 			// Set the fullscreen status
 			if (info.is_fullscreen != is_fullscreen)
@@ -177,14 +150,14 @@ namespace primal::platform {
 
 		void set_window_caption(window_id id, const wchar_t* caption)
 		{
-			window_info& info { get_from_id(id) };
+			window_info& info{ get_from_id(id) };
 			SetWindowText(info.hwnd, caption);
 		}
 
 		math::u32v4 get_window_size(window_id id)
 		{
-			window_info& info { get_from_id(id) };
-			RECT& area { info.is_fullscreen ? info.fullscreen_area : info.client_area };
+			window_info& info{ get_from_id(id) };
+			RECT& area{ info.is_fullscreen ? info.fullscreen_area : info.client_area };
 			return { (u32)area.left, (u32)area.top, (u32)area.right, (u32)area.bottom, };
 		}
 
@@ -199,8 +172,8 @@ namespace primal::platform {
 	window create_window(const window_init_info* const init_info /* = nullptr */)
 	{
 		// Use the value in init if it is not null
-		window_proc callback { init_info ? init_info->callback : nullptr };
-		window_handle parent { init_info ? init_info->parent : nullptr };
+		window_proc callback{ init_info ? init_info->callback : nullptr };
+		window_handle parent{ init_info ? init_info->parent : nullptr };
 
 		// Setup a window class
 		WNDCLASSEX wc;
@@ -221,22 +194,22 @@ namespace primal::platform {
 		// Register a window class
 		RegisterClassEx(&wc);
 
-		window_info info {};
+		window_info info{};
 		info.client_area.right = (init_info && init_info->width) ? info.client_area.left + init_info->width : info.client_area.right;
 		info.client_area.bottom = (init_info && init_info->height) ? info.client_area.top + init_info->height : info.client_area.bottom;
 		info.style |= parent ? WS_CHILD : WS_OVERLAPPEDWINDOW;
 
-		RECT rect { info.client_area };
+		RECT rect{ info.client_area };
 
 
 		// Adjust the window for the correct device size
 		AdjustWindowRect(&rect, info.style, FALSE);
 
-		const wchar_t* caption { (init_info && init_info->caption) ? init_info->caption : L"Primal Game" };
-		const s32 left { init_info ? init_info->left : info.top_left.x };
-		const s32 top { init_info ? init_info->top : info.top_left.y };
-		const s32 width { rect.right - rect.left };
-		const s32 height { rect.bottom - rect.top };
+		const wchar_t* caption{ (init_info && init_info->caption) ? init_info->caption : L"Primal Game" };
+		const s32 left{ init_info ? init_info->left : info.top_left.x };
+		const s32 top{ init_info ? init_info->top : info.top_left.y };
+		const s32 width{ rect.right - rect.left };
+		const s32 height{ rect.bottom - rect.top };
 
 		// Create an instant of the class
 		info.hwnd = CreateWindowEx(
@@ -256,7 +229,7 @@ namespace primal::platform {
 			// Clear any error
 			DEBUG_OP(SetLastError(0));
 			// Set the ID and save it in a long pointer
-			const window_id id { add_to_windows(info) };
+			const window_id id{ windows.add(info) };
 			SetWindowLongPtr(info.hwnd, GWLP_USERDATA, (LONG_PTR)id);
 
 			// Set the callback pointer at the index if one exists
@@ -266,16 +239,16 @@ namespace primal::platform {
 			// Show the window and return the ID
 			ShowWindow(info.hwnd, SW_SHOWNORMAL);
 			UpdateWindow(info.hwnd);
-			return window { id };
+			return window{ id };
 		}
 		return {};
 	}
 
 	void remove_window(window_id id)
 	{
-		window_info& info { get_from_id(id) };
+		window_info& info{ get_from_id(id) };
 		DestroyWindow(info.hwnd);
-		remove_from_windows(id);
+		windows.remove(id);
 	}
 
 #else
@@ -337,4 +310,4 @@ namespace primal::platform {
 		assert(is_valid());
 		return is_window_closed(_id);
 	}
-	}
+}

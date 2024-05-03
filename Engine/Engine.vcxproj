@@ -40,6 +40,7 @@
     <ClInclude Include="Utilities\Math.h" />
     <ClInclude Include="Utilities\MathTypes.h" />
     <ClInclude Include="Utilities\Utilities.h" />
+    <ClInclude Include="Utilities\Vector.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Common\PrimitiveTypes.h" />
@@ -57,6 +58,7 @@
     <ClCompile Include="Graphics\Direct3D12\D3D12Surface.cpp" />
     <ClCompile Include="Graphics\Renderer.cpp" />
     <ClCompile Include="Platform\Platform.cpp" />
+    <ClCompile Include="Utilities\FreeList.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
