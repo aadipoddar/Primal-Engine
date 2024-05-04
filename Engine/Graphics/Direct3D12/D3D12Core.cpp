@@ -1,6 +1,7 @@
 #include "D3D12Core.h"
 #include "D3D12Resources.h"
 #include "D3D12Surface.h"
+#include "D3D12Helpers.h"
 
 using namespace Microsoft::WRL;
 
@@ -8,6 +9,7 @@ namespace primal::graphics::d3d12::core {
 
 	// TODO : Remove when you are done showing how to create a root signature the tedious way
 	void create_a_root_signature();
+	void create_a_root_signature2();
 
 	namespace {
 
@@ -349,6 +351,7 @@ namespace primal::graphics::d3d12::core {
 
 		// TODO: Remove
 		create_a_root_signature();
+		create_a_root_signature2();
 
 		return true;
 	}
@@ -399,7 +402,7 @@ namespace primal::graphics::d3d12::core {
 		release(main_device);
 	}
 
-	ID3D12Device* const device() { return main_device; }
+	ID3D12Device8* const device() { return main_device; }
 
 	descriptor_heap& rtv_heap() { return rtv_desc_heap; }
 	descriptor_heap& dsv_heap() { return dsv_desc_heap; }
@@ -550,9 +553,113 @@ namespace primal::graphics::d3d12::core {
 		release(root_sig_blob);
 		release(error_blob);
 
-		// use root_sig
+		// use root_sig during rendering (not in this function, obviously)
+#if 0
+		ID3D12GraphicsCommandList6* cmd_list{};
+		cmd_list->SetGraphicsRootSignature(root_sig);
+		//only one resoure heap and one sampler heap can be set at any time
+		// So, max number of heaps is 2
+		ID3D12DescriptorHeap* heaps[]{ srv_heap().heap() };
+		cmd_list->SetDescriptorHeaps(1, &heaps[0]);
+
+		// Set Root parameters
+		float dt{ 16.6f };
+		u32 dt_unit{ *((u32*)&dt) };
+		u32 frame_nr{ 427827 };
+		D3D12_GPU_VIRTUAL_ADDRESS address_of_constant_buffer{/* Our constant buffer which we don't have right now */ };
+		cmd_list->SetGraphicsRoot32BitConstant(0, dt_unit, 0);
+		cmd_list->SetGraphicsRoot32BitConstant(0, frame_nr, 1);
+		cmd_list->SetGraphicsRootConstantBufferView(1, address_of_constant_buffer);
+		cmd_list->SetGraphicsRootDescriptorTable(2, srv_heap().gpu_start());
+		// Record the rest of rendering commands...
+#endif // 1
+
 
 		// When Renderer Shuts Down
 		release(root_sig);
+	}
+
+	void create_a_root_signature2()
+	{
+		d3dx::d3d12_descriptor_range range{ D3D12_DESCRIPTOR_RANGE_TYPE_SRV,D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND,0 };
+		d3dx::d3d12_root_parameter params[3]{};
+		params[0].as_constants(2, D3D12_SHADER_VISIBILITY_PIXEL, 0);
+		params[1].as_cbv(D3D12_SHADER_VISIBILITY_PIXEL, 1);
+		params[2].as_descriptor_table(D3D12_SHADER_VISIBILITY_PIXEL, &range, 1);
+
+		d3dx::d3d12_root_signature_desc root_sig_desc{ &params[0],_countof(params) };
+		ID3D12RootSignature* root_sig{ root_sig_desc.create() };
+
+		// use_root_sig
+
+		// when renderer shuts down
+		release(root_sig);
+	}
+
+	ID3D12RootSignature* _root_signature;
+	D3D12_SHADER_BYTECODE _vs{};
+
+	template<D3D12_PIPELINE_STATE_SUBOBJECT_TYPE type, typename T>
+	class alignas(void*) d3d12_pipeline_state_subobject
+	{
+	public:
+		d3d12_pipeline_state_subobject() = default;
+		constexpr explicit d3d12_pipeline_state_subobject(T subobject) :_type{ type }, _subobject{ subobject } {}
+		d3d12_pipeline_state_subobject& operator=(const T& subobject) { _subobject = subobject; return *this; }
+
+	private:
+		const D3D12_PIPELINE_STATE_SUBOBJECT_TYPE _type{ type };
+		T _subobject{};
+	};
+
+	using d3d12_pipeline_state_subobject_root_signature = d3d12_pipeline_state_subobject<D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_ROOT_SIGNATURE, ID3D12RootSignature*>;
+	using d3d12_pipeline_state_subobject_vs = d3d12_pipeline_state_subobject<D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_VS, D3D12_SHADER_BYTECODE>;
+
+	void create_a_pipeline_state_object()
+	{
+		struct
+		{
+			struct alignas(void*)
+			{
+				const D3D12_PIPELINE_STATE_SUBOBJECT_TYPE type{ D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_ROOT_SIGNATURE };
+				ID3D12RootSignature* root_signature;
+			} root_sig;
+
+			struct alignas(void*)
+			{
+				const D3D12_PIPELINE_STATE_SUBOBJECT_TYPE type{ D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_VS };
+				D3D12_SHADER_BYTECODE vs_code{};
+			} vs;
+		}stream;
+
+		stream.root_sig.root_signature = _root_signature;
+		stream.vs.vs_code = _vs;
+
+		D3D12_PIPELINE_STATE_STREAM_DESC desc{};
+		desc.pPipelineStateSubobjectStream = &strcat;
+		desc.SizeInBytes = sizeof(stream);
+
+		ID3D12PipelineState* pso{ nullptr };
+		device()->CreatePipelineState(&desc, IID_PPV_ARGS(&pso));
+
+		// use pso during rendering
+
+		// when renderer shuts down
+		release(pso);
+	}
+
+	void create_a_pipeline_state_object2()
+	{
+		struct {
+			d3d12_pipeline_state_subobject_root_signature root_sig{ _root_signature };
+			d3d12_pipeline_state_subobject_vs vs{ _vs };
+		} stream;
+
+		auto pso = d3dx::create_pipeline_state(&stream, sizeof(stream));
+
+		// use pso during rendering
+
+		// when renderer shuts down
+		release(pso);
 	}
 }
