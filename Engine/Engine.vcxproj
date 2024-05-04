@@ -52,6 +52,7 @@
     <ClCompile Include="Core\Main.cpp" />
     <ClCompile Include="Graphics\Direct3D12\D3D12CommonHeaders.h" />
     <ClCompile Include="Graphics\Direct3D12\D3D12Core.cpp" />
+    <ClCompile Include="Graphics\Direct3D12\D3D12Helpers.h" />
     <ClCompile Include="Graphics\Direct3D12\D3D12Interface.cpp" />
     <ClCompile Include="Graphics\Direct3D12\D3D12Interface.h" />
     <ClCompile Include="Graphics\Direct3D12\D3D12Resources.cpp" />

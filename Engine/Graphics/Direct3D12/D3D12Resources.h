@@ -59,4 +59,60 @@ namespace primal::graphics::d3d12 {
 		const D3D12_DESCRIPTOR_HEAP_TYPE	_type{};
 	};
 
+	struct d3d12_texture_init_info
+	{
+		ID3D12Heap1* heap{ nullptr };
+		ID3D12Resource* resource{ nullptr };
+		D3D12_SHADER_RESOURCE_VIEW_DESC* srv_dec{ nullptr };
+		D3D12_RESOURCE_DESC* desc{ nullptr };
+		D3D12_RESOURCE_ALLOCATION_INFO1 allocation_info{};
+		D3D12_RESOURCE_STATES initial_state{};
+		D3D12_CLEAR_VALUE clear_value;
+	};
+
+	class d3d12_texture
+	{
+	public:
+		d3d12_texture() = default;
+		explicit d3d12_texture(d3d12_texture_init_info info);
+		DISABLE_COPY(d3d12_texture);
+		constexpr d3d12_texture(d3d12_texture&& o)
+			:_resource{ o._resource }, _srv{ o._srv }
+		{
+			o.reset();
+		}
+
+		constexpr d3d12_texture& operator =(d3d12_texture&& o)
+		{
+			assert(this != &o);
+			if (this != &o)
+			{
+				release();
+				move(o);
+			}
+			return *this;
+		}
+
+		void release();
+		constexpr ID3D12Resource* const resource()const { return _resource; }
+		constexpr descriptor_handle srv()const { return _srv; }
+
+	private:
+		constexpr void move(d3d12_texture& o)
+		{
+			_resource = o._resource;
+			_srv = o._srv;
+			o.reset();
+		}
+
+		constexpr void reset()
+		{
+			_resource = nullptr;
+			_srv = {};
+		}
+
+		ID3D12Resource* _resource{ nullptr };
+		descriptor_handle	_srv;
+	};
+
 }
