@@ -79,7 +79,7 @@ namespace primal::graphics::d3d12 {
 		explicit d3d12_texture(d3d12_texture_init_info info);
 		DISABLE_COPY(d3d12_texture);
 		constexpr d3d12_texture(d3d12_texture&& o)
-			:_resource{ o._resource }, _srv{ o._srv }
+			: _resource{ o._resource }, _srv{ o._srv }
 		{
 			o.reset();
 		}

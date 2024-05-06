@@ -1,6 +1,7 @@
 #include "D3D12Core.h"
-#include "D3D12Surface.h"
+#include "D3D12Surface.h" 
 #include "D3D12Shaders.h"
+#include "D3D12GPass.h"
 
 using namespace Microsoft::WRL;
 
@@ -39,10 +40,8 @@ namespace primal::graphics::d3d12::core {
 					DXCall(hr = device->CreateCommandAllocator(type, IID_PPV_ARGS(&frame.cmd_allocator)));
 					if (FAILED(hr)) goto _error;
 					NAME_D3D12_OBJECT_INDEXED(frame.cmd_allocator, i,
-						type == D3D12_COMMAND_LIST_TYPE_DIRECT ?
-						L"GFX Command Allocator" :
-						type == D3D12_COMMAND_LIST_TYPE_COMPUTE ?
-						L"Compute Command Allocator" : L"Command Allocator");
+						type == D3D12_COMMAND_LIST_TYPE_DIRECT ? L"GFX Command Allocator" :
+						type == D3D12_COMMAND_LIST_TYPE_COMPUTE ? L"Compute Command Allocator" : L"Command Allocator");
 				}
 
 				DXCall(hr = device->CreateCommandList(0, type, _cmd_frames[0].cmd_allocator, nullptr, IID_PPV_ARGS(&_cmd_list)));
@@ -338,7 +337,7 @@ namespace primal::graphics::d3d12::core {
 		if (!gfx_command.command_queue()) return failed_init();
 
 		// Initialize Modules
-		if (!shaders::initialize())
+		if (!(shaders::initialize() && gpass::initialize()))
 			return failed_init();
 
 		NAME_D3D12_OBJECT(main_device, L"Main D3D12 Device");
@@ -363,6 +362,7 @@ namespace primal::graphics::d3d12::core {
 		}
 
 		// Shutdown Modules
+		gpass::shutdown();
 		shaders::shutdown();
 
 		release(dxgi_fctory);

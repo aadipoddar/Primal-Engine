@@ -4,6 +4,12 @@
 #include "Graphics/Renderer.h"
 #include "Platform/Window.h"
 
+// Skip defination of min/max macros in windows.h
+#ifndef NOMINMAX
+	#define NOMINMAX
+#endif // NOMINMAX
+
+
 #include <dxgi1_6.h>
 #include <d3d12.h>
 #include <wrl.h>
@@ -64,7 +70,7 @@ namespace primal::graphics::d3d12 {
 
 #else
 	#define NAME_D3D12_OBJECT(x, name)
-	#define NAME_D3D12_OBJECT_INDEXED(x, name)
+	#define NAME_D3D12_OBJECT_INDEXED(x, n, name)
 
 #endif // _DEBUG
 

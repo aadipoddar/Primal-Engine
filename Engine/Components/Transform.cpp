@@ -15,7 +15,7 @@ namespace primal::transform
 	component create(init_info info, game_entity::entity entity)
 	{
 		assert(entity.is_valid());
-		const id::id_type entity_index { id::index(entity.get_id()) };
+		const id::id_type entity_index{ id::index(entity.get_id()) };
 
 		if (positions.size() > entity_index)
 		{
@@ -32,10 +32,10 @@ namespace primal::transform
 			scales.emplace_back(info.scale);
 		}
 
-		return component(transform_id { (id::id_type)positions.size() - 1 });
+		return component{ transform_id{ entity.get_id()} };
 	}
 
-	void remove(component c)
+	void remove([[maybe_unused]]component c)
 	{
 		assert(c.is_valid());
 	}
