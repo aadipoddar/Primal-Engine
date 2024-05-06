@@ -4,23 +4,17 @@
 namespace primal::graphics::d3d12 {
 
 	namespace {
-
-		constexpr DXGI_FORMAT to_non_srgb(DXGI_FORMAT format)
-		{
+		constexpr DXGI_FORMAT to_non_srgb(DXGI_FORMAT format) {
 			if (format == DXGI_FORMAT_R8G8B8A8_UNORM_SRGB) return DXGI_FORMAT_R8G8B8A8_UNORM;
 			return format;
 		}
+	} // anonymous namespace
 
-	} // Anonymous Namespace
-
-
-	void d3d12_surface::create_swap_chain(IDXGIFactory7* factory, ID3D12CommandQueue* cmd_queue, DXGI_FORMAT format /* = default_back_buffer_format*/)
-	{
+	void d3d12_surface::create_swap_chain(IDXGIFactory7* factory, ID3D12CommandQueue* cmd_queue, DXGI_FORMAT format /* = default_back_buffer_format*/) {
 		assert(factory && cmd_queue);
 		release();
 
-		if (SUCCEEDED(factory->CheckFeatureSupport(DXGI_FEATURE_PRESENT_ALLOW_TEARING, &_allow_tearing, sizeof(u32))) && _allow_tearing)
-		{
+		if (SUCCEEDED(factory->CheckFeatureSupport(DXGI_FEATURE_PRESENT_ALLOW_TEARING, &_allow_tearing, sizeof(u32))) && _allow_tearing) {
 			_present_flags = DXGI_PRESENT_ALLOW_TEARING;
 		}
 
@@ -32,8 +26,8 @@ namespace primal::graphics::d3d12 {
 		desc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
 		desc.Flags = _allow_tearing ? DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING : 0;
 		desc.Format = to_non_srgb(format);
-		desc.Height = _window.height();
 		desc.Width = _window.width();
+		desc.Height = _window.height();
 		desc.SampleDesc.Count = 1;
 		desc.SampleDesc.Quality = 0;
 		desc.Scaling = DXGI_SCALING_STRETCH;
@@ -47,32 +41,28 @@ namespace primal::graphics::d3d12 {
 		DXCall(swap_chain->QueryInterface(IID_PPV_ARGS(&_swap_chain)));
 		core::release(swap_chain);
 
-		_cuurent_bb_index = _swap_chain->GetCurrentBackBufferIndex();
+		_current_bb_index = _swap_chain->GetCurrentBackBufferIndex();
 
-		for (u32 i{ 0 }; i < frame_buffer_count; ++i)
-		{
+		for (u32 i{ 0 }; i < buffer_count; ++i) {
 			_render_target_data[i].rtv = core::rtv_heap().allocate();
 		}
 
 		finalize();
 	}
 
-	void d3d12_surface::present() const
-	{
+	void d3d12_surface::present() const {
 		assert(_swap_chain);
 		DXCall(_swap_chain->Present(0, _present_flags));
-		_cuurent_bb_index = _swap_chain->GetCurrentBackBufferIndex();
+		_current_bb_index = _swap_chain->GetCurrentBackBufferIndex();
 	}
 
-	void d3d12_surface::resize()
-	{
+	void d3d12_surface::resize() {
+
 	}
 
-	void d3d12_surface::finalize()
-	{
-		// Create RTVs for back_buffers
-		for (u32 i{ 0 }; i < buffer_count; ++i)
-		{
+	void d3d12_surface::finalize() {
+		// create RTVs for back-buffers
+		for (u32 i{ 0 }; i < buffer_count; ++i) {
 			render_target_data& data{ _render_target_data[i] };
 			assert(!data.resource);
 			DXCall(_swap_chain->GetBuffer(i, IID_PPV_ARGS(&data.resource)));
@@ -88,21 +78,19 @@ namespace primal::graphics::d3d12 {
 		const u32 height{ desc.BufferDesc.Height };
 		assert(_window.width() == width && _window.height() == height);
 
-		// Set viewport and scissor rect
+		// set viewport and scissor rect
 		_viewport.TopLeftX = 0.f;
 		_viewport.TopLeftY = 0.f;
 		_viewport.Width = (float)width;
 		_viewport.Height = (float)height;
-		_viewport.MaxDepth = 0.f;
+		_viewport.MinDepth = 0.f;
 		_viewport.MaxDepth = 1.f;
 
-		_scissor_rect = { 0, 0, (s32)width, (s32)height };
+		_scissor_rect = { 0,0,(s32)width, (s32)height };
 	}
 
-	void d3d12_surface::release()
-	{
-		for (u32 i{ 0 }; i < buffer_count; ++i)
-		{
+	void d3d12_surface::release() {
+		for (u32 i{ 0 }; i < buffer_count; ++i) {
 			render_target_data& data{ _render_target_data[i] };
 			core::release(data.resource);
 			core::rtv_heap().free(data.rtv);
@@ -110,5 +98,4 @@ namespace primal::graphics::d3d12 {
 
 		core::release(_swap_chain);
 	}
-
 }

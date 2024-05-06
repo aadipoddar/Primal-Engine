@@ -8,11 +8,11 @@ namespace primal::graphics {
 
 	DEFINE_TYPED_ID(surface_id);
 
-	class surface
-	{
+	class surface {
+
 	public:
-		constexpr explicit surface(surface_id id) : _id{ id } { }
-		constexpr surface() : _id{ id::invalid_id } { }
+		constexpr explicit surface(surface_id id) : _id{ id } {}
+		constexpr surface() = default;
 		constexpr surface_id get_id() const { return _id; }
 		constexpr bool is_valid() const { return id::is_valid(_id); }
 
@@ -25,26 +25,26 @@ namespace primal::graphics {
 		surface_id _id{ id::invalid_id };
 	};
 
-	struct render_surface
-	{
+	struct renderer_surface {
 		platform::window window{};
 		surface surface{};
 	};
 
-	enum class graphics_platform : u32
-	{
-		direct3d12 = 0
+	enum class graphics_platform : u32 {
+		direct3d12 = 0,
 	};
 
 	bool initialize(graphics_platform platform);
 	void shutdown();
 
-	// Get the location of compiled engine shaders, for the specified platform, relative to the executable's path
+	// Get the location of compiled engine shaders relative to the executable's path
 	// The path is for the graphics API that's currently in use
 	const char* get_engine_shaders_path();
+
+	// Get the location of compiled engine shaders for the specific platform relative to the executable's path
+	// The path is for the graphics API that's currently in use
 	const char* get_engine_shaders_path(graphics_platform platform);
 
 	surface create_surface(platform::window window);
 	void remove_surface(surface_id id);
-
 }

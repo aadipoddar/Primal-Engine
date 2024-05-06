@@ -24,18 +24,16 @@ namespace
 		shader_type::type type;
 	};
 
-	constexpr shader_file_info shader_files[]
-	{
-		{"FullScreenTriangle.hlsl", "FullScreenTriangleVS", engine_shader::fullscreen_triangle_vs, shader_type::vetex},
-		{"FillColor.hlsl", "FillColorPS", engine_shader::fill_color_ps, shader_type::pixel},
+	constexpr shader_file_info shader_files[]{
+		{"FullScreenTriangle.hlsl", "FullScreenTriangleVS", engine_shader::fullscreen_triangle_vs, shader_type::vertex },
+		{"FillColor.hlsl", "FillColorPS", engine_shader::fill_color_ps, shader_type::pixel },
 	};
 
 	static_assert(_countof(shader_files) == engine_shader::count);
 
-	constexpr const char* shaders_source_path{ "../Engine/Graphics/Direct3D12/Shaders/" };
+	constexpr const char* shaders_source_path{ "../../Engine/Graphics/Direct3D12/Shaders/" };
 
-	std::wstring to_wstring(const char* c)
-	{
+	std::wstring to_wstring(const char* c) {
 		std::string s{ c };
 		return { s.begin(), s.end() };
 	}
@@ -43,8 +41,7 @@ namespace
 	class shader_compiler {
 
 	public:
-		shader_compiler()
-		{
+		shader_compiler() {
 			HRESULT hr{ S_OK };
 			DXCall(hr = DxcCreateInstance(CLSID_DxcCompiler, IID_PPV_ARGS(&_compiler)));
 			if (FAILED(hr)) return;
@@ -56,8 +53,7 @@ namespace
 
 		DISABLE_COPY_AND_MOVE(shader_compiler);
 
-		IDxcBlob* compile(shader_file_info info, std::filesystem::path full_path)
-		{
+		IDxcBlob* compile(shader_file_info info, std::filesystem::path full_path) {
 			assert(_compiler && _utils && _include_handler);
 			HRESULT hr{ S_OK };
 
@@ -93,8 +89,7 @@ namespace
 			return compile(source_blob.Get(), args, _countof(args));
 		}
 
-		IDxcBlob* compile(IDxcBlobEncoding* source_blob, LPCWSTR* args, u32 num_args)
-		{
+		IDxcBlob* compile(IDxcBlobEncoding* source_blob, LPCWSTR* args, u32 num_args) {
 			DxcBuffer buffer{};
 			buffer.Encoding = DXC_CP_ACP; // auto-detect text format
 			buffer.Ptr = source_blob->GetBufferPointer();
@@ -139,28 +134,22 @@ namespace
 		ComPtr<IDxcIncludeHandler> _include_handler{ nullptr };
 	};
 
-
-
 	// Get the path to the compiled shaders binary file
-	decltype(auto) get_engine_shaders_path()
-	{
+	decltype(auto) get_engine_shaders_path() {
 		return std::filesystem::path{ graphics::get_engine_shaders_path(graphics::graphics_platform::direct3d12) };
 	}
 
-
-	bool compile_shaders_are_up_to_date()
-	{
+	bool compiled_shaders_are_up_to_date() {
 		auto engine_shaders_path = get_engine_shaders_path();
 		if (!std::filesystem::exists(engine_shaders_path)) return false;
-		auto shader_compilation_time = std::filesystem::last_write_time(engine_shaders_path);
+		auto shaders_compilation_time = std::filesystem::last_write_time(engine_shaders_path);
 
 		std::filesystem::path path{};
 		std::filesystem::path full_path{};
 
 		// Check if either of engine shader source files is newer than the compiled shader file
-		// In that case we need to recompile
-		for (u32 i{ 0 }; i < engine_shader::count; ++i)
-		{
+		// In that case, we need to recompile
+		for (u32 i{ 0 }; i < engine_shader::count; ++i) {
 			auto& info = shader_files[i];
 
 			path = shaders_source_path;
@@ -169,8 +158,7 @@ namespace
 			if (!std::filesystem::exists(full_path)) return false;
 
 			auto shader_file_time = std::filesystem::last_write_time(full_path);
-			if (shader_file_time > shader_compilation_time)
-			{
+			if (shader_file_time > shaders_compilation_time) {
 				return false;
 			}
 		}
@@ -178,33 +166,30 @@ namespace
 		return true;
 	}
 
-	bool save_compiled_shaders(utl::vector<ComPtr<IDxcBlob>>& shaders)
-	{
+	bool save_compiled_shaders(utl::vector<ComPtr<IDxcBlob>>& shaders) {
 		auto engine_shaders_path = get_engine_shaders_path();
 		std::filesystem::create_directories(engine_shaders_path.parent_path());
 		std::ofstream file(engine_shaders_path, std::ios::out | std::ios::binary);
-		if (!file || !std::filesystem::exists(engine_shaders_path))
-		{
+
+		if (!file || !std::filesystem::exists(engine_shaders_path)) {
 			file.close();
 			return false;
 		}
 
-		for (auto& shader : shaders)
-		{
-			const D3D12_SHADER_BYTECODE byte_code{ shader->GetBufferPointer(),shader->GetBufferSize() };
+		for (auto& shader : shaders) {
+			const D3D12_SHADER_BYTECODE byte_code{ shader->GetBufferPointer(), shader->GetBufferSize() };
 			file.write((char*)&byte_code.BytecodeLength, sizeof(byte_code.BytecodeLength));
-			file.write((char*)&byte_code.pShaderBytecode, byte_code.BytecodeLength);
+			file.write((char*)byte_code.pShaderBytecode, byte_code.BytecodeLength);
 		}
 
 		file.close();
 		return true;
 	}
 
-} // Anoneymous Namespace
+} // anonymous namespace
 
-bool compile_shaders()
-{
-	if (compile_shaders_are_up_to_date()) return true;
+bool compile_shaders() {
+	if (compiled_shaders_are_up_to_date()) return true;
 
 	utl::vector<ComPtr<IDxcBlob>> shaders;
 	std::filesystem::path path{};
@@ -213,22 +198,21 @@ bool compile_shaders()
 	shader_compiler compiler{};
 
 	// compile shaders and put them together in a buffer in the same order of compilation
-	for (u32 i{ 0 }; i < engine_shader::count; ++i)
-	{
+	for (u32 i{ 0 }; i < engine_shader::count; ++i) {
 		auto& info = shader_files[i];
+
 		path = shaders_source_path;
 		path += info.file;
 		full_path = path;
 		if (!std::filesystem::exists(full_path)) return false;
 		ComPtr<IDxcBlob> compiled_shader{ compiler.compile(info, full_path) };
-		if (compiled_shader && compiled_shader->GetBufferPointer() && compiled_shader->GetBufferSize())
-		{
+		if (compiled_shader && compiled_shader->GetBufferPointer() && compiled_shader->GetBufferSize()) {
 			shaders.emplace_back(std::move(compiled_shader));
 		}
-		else
-		{
+		else {
 			return false;
 		}
 	}
+
 	return save_compiled_shaders(shaders);
 }

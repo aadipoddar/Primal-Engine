@@ -1,39 +1,30 @@
 #pragma once
-
 #include "D3D12CommonHeaders.h"
 
 namespace primal::graphics::d3d12 {
-	struct d3d12_frame_info
-	{
+	struct d3d12_frame_info {
 		u32 surface_width{};
 		u32 surface_height{};
 	};
 }
 
 namespace primal::graphics::d3d12::core {
-
 	bool initialize();
 	void shutdown();
 
-	template<typename T> constexpr void release(T*& resource)
-	{
-		if (resource)
-		{
+	template<typename T> constexpr void release(T*& resource) {
+		if (resource) {
 			resource->Release();
 			resource = nullptr;
 		}
 	}
 
 	namespace detail {
-
 		void deferred_release(IUnknown* resource);
-
 	}
 
-	template<typename T> constexpr void deferred_release(T*& resource)
-	{
-		if (resource)
-		{
+	template<typename T> constexpr void deferred_release(T*& resource) {
+		if (resource) {
 			detail::deferred_release(resource);
 			resource = nullptr;
 		}
@@ -54,5 +45,4 @@ namespace primal::graphics::d3d12::core {
 	u32 surface_width(surface_id id);
 	u32 surface_height(surface_id id);
 	void render_surface(surface_id id);
-
 }

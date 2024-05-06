@@ -5,8 +5,7 @@
 
 namespace primal::graphics::d3d12 {
 
-	void get_platform_interface(platform_interface& pi)
-	{
+	void get_platform_interface(platform_interface& pi) {
 		pi.initialize = core::initialize;
 		pi.shutdown = core::shutdown;
 
@@ -19,5 +18,4 @@ namespace primal::graphics::d3d12 {
 
 		pi.platform = graphics_platform::direct3d12;
 	}
-
 }

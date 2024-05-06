@@ -18,6 +18,7 @@ public:
 #if _WIN64
 
 #include <Windows.h>
+#include "PrimitiveTypes.h"
 
 class time_it
 {
@@ -51,7 +52,7 @@ public:
 
 private:
 	float _ms_avg{ 0.f };
-	int _counter{ 1 };
+	u32 _counter{ 1 };
 	time_stamp _start;
 	time_stamp _seconds{ clock::now() };
 
