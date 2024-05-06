@@ -67,3 +67,6 @@ namespace primal::graphics::d3d12 {
 	#define NAME_D3D12_OBJECT_INDEXED(x, name)
 
 #endif // _DEBUG
+
+#include "D3D12Helpers.h"
+#include "D3D12Resources.h"
