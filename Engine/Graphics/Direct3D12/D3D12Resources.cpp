@@ -77,8 +77,8 @@ namespace primal::graphics::d3d12 {
 			handle.gpu.ptr = _gpu_start.ptr + offset;
 		}
 
+		handle.index = index;
 		DEBUG_OP(handle.container = this);
-		DEBUG_OP(handle.index = index);
 		return handle;
 	}
 
@@ -163,7 +163,7 @@ namespace primal::graphics::d3d12 {
 
 	////////// DEPTH BUFFER //////////
 
-	d3d12_depth_bufffer::d3d12_depth_bufffer(d3d12_texture_init_info info) {
+	d3d12_depth_buffer::d3d12_depth_buffer(d3d12_texture_init_info info) {
 		assert(info.desc);
 		const DXGI_FORMAT dsv_format{ info.desc->Format };
 
@@ -197,7 +197,7 @@ namespace primal::graphics::d3d12 {
 		device->CreateDepthStencilView(resource(), &dsv_desc, _dsv.cpu);
 	}
 
-	void d3d12_depth_bufffer::release() {
+	void d3d12_depth_buffer::release() {
 		core::dsv_heap().free(_dsv);
 		_texture.release();
 	}

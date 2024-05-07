@@ -9,15 +9,15 @@ namespace primal::graphics::d3d12 {
 	struct descriptor_handle {
 		D3D12_CPU_DESCRIPTOR_HANDLE cpu{};
 		D3D12_GPU_DESCRIPTOR_HANDLE gpu{};
+		u32							index{ u32_invalid_id };
 
-		constexpr bool is_valid() const { return cpu.ptr != 0; };
-		constexpr bool is_shader_visible() const { return gpu.ptr != 0; };
+		[[nodiscard]] constexpr bool is_valid() const { return cpu.ptr != 0; };
+		[[nodiscard]] constexpr bool is_shader_visible() const { return gpu.ptr != 0; };
 
 #ifdef _DEBUG
 	private:
 		friend class descriptor_heap;
 		descriptor_heap* container{ nullptr };
-		u32	index{ u32_invalid_id };
 #endif // _DEBUG
 
 	};
@@ -36,14 +36,14 @@ namespace primal::graphics::d3d12 {
 		[[nodiscard]] descriptor_handle allocate();
 		void free(descriptor_handle& handle);
 
-		constexpr D3D12_DESCRIPTOR_HEAP_TYPE type() const { return _type; }
-		constexpr D3D12_CPU_DESCRIPTOR_HANDLE cpu_start() const { return _cpu_start; }
-		constexpr D3D12_GPU_DESCRIPTOR_HANDLE gpu_start() const { return _gpu_start; }
-		constexpr ID3D12DescriptorHeap* const heap() const { return _heap; }
-		constexpr u32 capacity() const { return _capacity; }
-		constexpr u32 size() const { return _size; }
-		constexpr u32 descriptor_size() const { return _descriptor_size; }
-		constexpr bool is_shader_visible() const { return _gpu_start.ptr != 0; }
+		[[nodiscard]] constexpr D3D12_DESCRIPTOR_HEAP_TYPE type() const { return _type; }
+		[[nodiscard]] constexpr D3D12_CPU_DESCRIPTOR_HANDLE cpu_start() const { return _cpu_start; }
+		[[nodiscard]] constexpr D3D12_GPU_DESCRIPTOR_HANDLE gpu_start() const { return _gpu_start; }
+		[[nodiscard]] constexpr ID3D12DescriptorHeap* const heap() const { return _heap; }
+		[[nodiscard]] constexpr u32 capacity() const { return _capacity; }
+		[[nodiscard]] constexpr u32 size() const { return _size; }
+		[[nodiscard]] constexpr u32 descriptor_size() const { return _descriptor_size; }
+		[[nodiscard]] constexpr bool is_shader_visible() const { return _gpu_start.ptr != 0; }
 
 	private:
 		ID3D12DescriptorHeap* _heap;
@@ -75,7 +75,7 @@ namespace primal::graphics::d3d12 {
 		d3d12_texture() = default;
 		explicit d3d12_texture(d3d12_texture_init_info info);
 		DISABLE_COPY(d3d12_texture);
-		constexpr d3d12_texture(d3d12_texture&& o) : _resource{ o._resource }, _srv{ o._srv }{
+		constexpr d3d12_texture(d3d12_texture&& o) : _resource{ o._resource }, _srv{ o._srv } {
 			o.reset();
 		}
 
@@ -91,8 +91,8 @@ namespace primal::graphics::d3d12 {
 		~d3d12_texture() { release(); }
 
 		void release();
-		constexpr ID3D12Resource* const resource() const { return _resource; }
-		constexpr descriptor_handle srv() const { return _srv; }
+		[[nodiscard]] constexpr ID3D12Resource* const resource() const { return _resource; }
+		[[nodiscard]] constexpr descriptor_handle srv() const { return _srv; }
 
 	private:
 
@@ -118,7 +118,7 @@ namespace primal::graphics::d3d12 {
 		explicit d3d12_render_texture(d3d12_texture_init_info info);
 		DISABLE_COPY(d3d12_render_texture);
 
-		constexpr d3d12_render_texture(d3d12_render_texture&& o) : _texture{ std::move(o._texture) }, _mip_count{ o._mip_count }{
+		constexpr d3d12_render_texture(d3d12_render_texture&& o) : _texture{ std::move(o._texture) }, _mip_count{ o._mip_count } {
 			for (u32 i{ 0 }; i < _mip_count; ++i) _rtv[i] = o._rtv[i];
 			o.reset();
 		}
@@ -135,10 +135,10 @@ namespace primal::graphics::d3d12 {
 		~d3d12_render_texture() { release(); }
 
 		void release();
-		constexpr u32 mip_count() const { return _mip_count; }
-		constexpr D3D12_CPU_DESCRIPTOR_HANDLE rtv(u32 mip_index) const { assert(mip_index < _mip_count); return _rtv[mip_index].cpu; }
-		constexpr descriptor_handle srv() const { return _texture.srv(); }
-		constexpr ID3D12Resource* const resource() const { return _texture.resource(); }
+		[[nodiscard]] constexpr u32 mip_count() const { return _mip_count; }
+		[[nodiscard]] constexpr D3D12_CPU_DESCRIPTOR_HANDLE rtv(u32 mip_index) const { assert(mip_index < _mip_count); return _rtv[mip_index].cpu; }
+		[[nodiscard]] constexpr descriptor_handle srv() const { return _texture.srv(); }
+		[[nodiscard]] constexpr ID3D12Resource* const resource() const { return _texture.resource(); }
 
 	private:
 		constexpr void move(d3d12_render_texture& o) {
@@ -158,18 +158,18 @@ namespace primal::graphics::d3d12 {
 		u32 _mip_count{ 0 };
 	};
 
-	class d3d12_depth_bufffer {
+	class d3d12_depth_buffer {
 
 	public:
-		d3d12_depth_bufffer() = default;
-		explicit d3d12_depth_bufffer(d3d12_texture_init_info info);
-		DISABLE_COPY(d3d12_depth_bufffer);
+		d3d12_depth_buffer() = default;
+		explicit d3d12_depth_buffer(d3d12_texture_init_info info);
+		DISABLE_COPY(d3d12_depth_buffer);
 
-		constexpr d3d12_depth_bufffer(d3d12_depth_bufffer&& o) : _texture{ std::move(o._texture) }, _dsv{ o._dsv }{
+		constexpr d3d12_depth_buffer(d3d12_depth_buffer&& o) : _texture{ std::move(o._texture) }, _dsv{ o._dsv } {
 			o._dsv = {};
 		}
 
-		constexpr d3d12_depth_bufffer& operator=(d3d12_depth_bufffer&& o) {
+		constexpr d3d12_depth_buffer& operator=(d3d12_depth_buffer&& o) {
 			assert(this != &o);
 			if (this != &o) {
 				_texture = std::move(o._texture);
@@ -179,12 +179,12 @@ namespace primal::graphics::d3d12 {
 			return *this;
 		}
 
-		~d3d12_depth_bufffer() { release(); }
+		~d3d12_depth_buffer() { release(); }
 
 		void release();
-		constexpr D3D12_CPU_DESCRIPTOR_HANDLE dsv() const { return _dsv.cpu; }
-		constexpr descriptor_handle srv() const { return _texture.srv(); }
-		constexpr ID3D12Resource* const resource() const { return _texture.resource(); }
+		[[nodiscard]] constexpr D3D12_CPU_DESCRIPTOR_HANDLE dsv() const { return _dsv.cpu; }
+		[[nodiscard]] constexpr descriptor_handle srv() const { return _texture.srv(); }
+		[[nodiscard]] constexpr ID3D12Resource* const resource() const { return _texture.resource(); }
 
 	private:
 		d3d12_texture _texture{};
