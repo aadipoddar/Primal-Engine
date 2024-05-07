@@ -74,7 +74,7 @@ namespace primal::graphics::d3d12::fx {
 		return create_fx_pso_and_root_signature();
 	}
 
-	void shudown()
+	void shutdown()
 	{
 		core::release(fx_root_sig);
 		core::release(fx_pso);

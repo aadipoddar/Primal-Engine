@@ -57,7 +57,18 @@ namespace primal::graphics::d3d12 {
 	}
 
 	void d3d12_surface::resize() {
+		assert(_swap_chain);
+		for (u32 i{ 0 }; i < buffer_count; ++i) {
+			core::release(_render_target_data[i].resource);
+		}
 
+		const u32 flags{ _allow_tearing ? DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING : 0ul };
+		DXCall(_swap_chain->ResizeBuffers(buffer_count, 0, 0, DXGI_FORMAT_UNKNOWN, flags));
+		_current_bb_index = _swap_chain->GetCurrentBackBufferIndex();
+
+		finalize();
+
+		DEBUG_OP(OutputDebugString(L"::D3D12 Surface Resized.\n"));
 	}
 
 	void d3d12_surface::finalize() {
@@ -86,7 +97,7 @@ namespace primal::graphics::d3d12 {
 		_viewport.MinDepth = 0.f;
 		_viewport.MaxDepth = 1.f;
 
-		_scissor_rect = { 0,0,(s32)width, (s32)height };
+		_scissor_rect = { 0, 0, (s32)width, (s32)height };
 	}
 
 	void d3d12_surface::release() {
