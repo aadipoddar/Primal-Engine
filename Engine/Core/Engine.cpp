@@ -11,7 +11,7 @@ using namespace primal;
 
 namespace {
 
-    graphics::renderer_surface game_window{};
+    graphics::render_surface game_window{};
 
     LRESULT win_proc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) {
         switch (msg) {

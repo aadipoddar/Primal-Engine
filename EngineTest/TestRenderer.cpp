@@ -8,12 +8,12 @@
 
 using namespace primal;
 
-graphics::renderer_surface _surfaces[4];
+graphics::render_surface _surfaces[4];
 time_it timer{};
 
 bool resized{ false };
 bool is_restarting{ false };
-void destroy_render_surface(graphics::renderer_surface& surface);
+void destroy_render_surface(graphics::render_surface& surface);
 bool test_initialize();
 void test_shutdown();
 
@@ -81,13 +81,13 @@ LRESULT win_proc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) {
 	return DefWindowProc(hwnd, msg, wparam, lparam);
 }
 
-void create_render_surface(graphics::renderer_surface& surface, platform::window_init_info info) {
+void create_render_surface(graphics::render_surface& surface, platform::window_init_info info) {
 	surface.window = platform::create_window(&info);
 	surface.surface = graphics::create_surface(surface.window);
 }
 
-void destroy_render_surface(graphics::renderer_surface& surface) {
-	graphics::renderer_surface temp{ surface };
+void destroy_render_surface(graphics::render_surface& surface) {
+	graphics::render_surface temp{ surface };
 	surface = {};
 
 	if (temp.surface.is_valid()) graphics::remove_surface(temp.surface.get_id());

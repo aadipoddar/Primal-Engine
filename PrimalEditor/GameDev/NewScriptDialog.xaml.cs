@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.IO;
+using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -10,12 +11,12 @@ using PrimalEditor.Utilities;
 
 namespace PrimalEditor.GameDev
 {
-    /// <summary>
-    /// Interaction logic for NewScriptDialog.xaml
-    /// </summary>
-    public partial class NewScriptDialog : Window
-    {
-        private static readonly string _cppCode = @"
+	/// <summary>
+	/// Interaction logic for NewScriptDialog.xaml
+	/// </summary>
+	public partial class NewScriptDialog : Window
+	{
+		private static readonly string _cppCode = @"
 #include ""{0}.h""
 
 namespace {1} {{
@@ -34,7 +35,7 @@ namespace {1} {{
 
 }} // namespace {1}";
 
-        private static readonly string _hCode = @"
+		private static readonly string _hCode = @"
 #pragma once
 
 namespace {1} {{
@@ -54,129 +55,132 @@ namespace {1} {{
 }} // namespace {1}";
 
 
-        private static readonly string _namespace = getNamespaceFromProjectName();
+		private static readonly string _namespace = getNamespaceFromProjectName();
 
-        private static string getNamespaceFromProjectName()
-        {
-            var projectName = Project.Current.Name;
-            projectName = projectName.Replace(' ', '_');
-            return projectName;
-        }
+		private static string getNamespaceFromProjectName()
+		{
+			var projectName = Project.Current.Name;
+			if (string.IsNullOrEmpty(projectName)) return string.Empty;
+			projectName = Regex.Replace(projectName, @"[^A-Za-z0-9_]", "");
 
-        private bool Validate()
-        {
-            bool isValid = false;
-            var name = scriptName.Text.Trim();
-            var path = scriptPath.Text.Trim();
-            string errorMessage = string.Empty;
+			return projectName;
+		}
 
-            if (string.IsNullOrEmpty(name))
-                errorMessage = "Type in a Script Name";
-            else if (name.IndexOfAny(Path.GetInvalidFileNameChars()) != -1 || name.Any(x => char.IsWhiteSpace(x)))
-                errorMessage = "Invalid Character(s) used is Script Name";
-            else if (string.IsNullOrEmpty(path))
-                errorMessage = "Type in a Script Path";
-            else if (path.IndexOfAny(Path.GetInvalidPathChars()) != -1)
-                errorMessage = "Invalid Character(s) used is Script Path";
-            else if (!Path.GetFullPath(Path.Combine(Project.Current.Path, path)).Contains(Path.Combine(Project.Current.Path, @"GameCode\")))
-                errorMessage = "Script Path must be added to (a sub-folder of) GameCode";
-            else if (File.Exists(Path.GetFullPath(Path.Combine(Path.Combine(Project.Current.Path, path), $"{name}.cpp"))) ||
-                File.Exists(Path.GetFullPath(Path.Combine(Path.Combine(Project.Current.Path, path), $"{name}.h"))))
-                errorMessage = $"Script {name} already exists in this folder";
-            else
-                isValid = true;
+		private bool Validate()
+		{
+			bool isValid = false;
+			var name = scriptName.Text.Trim();
+			var path = scriptPath.Text.Trim();
+			string errorMessage = string.Empty;
+			var nameRegex = new Regex(@"[^A-Za-z0-9_]");
 
-            if (!isValid)
-                messageTextBlock.Foreground = FindResource("Editor.RedBrush") as Brush;
-            else
-                messageTextBlock.Foreground = FindResource("Editor.FontBrush") as Brush;
+			if (string.IsNullOrEmpty(name))
+				errorMessage = "Type in a Script Name";
+			else if (nameRegex.IsMatch(name))
+				errorMessage = "Invalid Character(s) used is Script Name";
+			else if (string.IsNullOrEmpty(path))
+				errorMessage = "Type in a Script Path";
+			else if (path.IndexOfAny(Path.GetInvalidPathChars()) != -1)
+				errorMessage = "Invalid Character(s) used is Script Path";
+			else if (!Path.GetFullPath(Path.Combine(Project.Current.Path, path)).Contains(Path.Combine(Project.Current.Path, @"GameCode\")))
+				errorMessage = "Script Path must be added to (a sub-folder of) GameCode";
+			else if (File.Exists(Path.GetFullPath(Path.Combine(Path.Combine(Project.Current.Path, path), $"{name}.cpp"))) ||
+				File.Exists(Path.GetFullPath(Path.Combine(Path.Combine(Project.Current.Path, path), $"{name}.h"))))
+				errorMessage = $"Script {name} already exists in this folder";
+			else
+				isValid = true;
 
-            messageTextBlock.Text = errorMessage;
-            return isValid;
-        }
+			if (!isValid)
+				messageTextBlock.Foreground = FindResource("Editor.RedBrush") as Brush;
+			else
+				messageTextBlock.Foreground = FindResource("Editor.FontBrush") as Brush;
 
-        private void OnScriptName_TextBox_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            if (!Validate()) return;
+			messageTextBlock.Text = errorMessage;
+			return isValid;
+		}
 
-            var name = scriptName.Text.Trim();
-            messageTextBlock.Text = $"{name}.cpp and {name}.h will be added to {Project.Current.Name}";
-        }
+		private void OnScriptName_TextBox_TextChanged(object sender, TextChangedEventArgs e)
+		{
+			if (!Validate()) return;
 
-        private void OnScriptPath_TextBox_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            Validate();
-        }
+			var name = scriptName.Text.Trim();
+			messageTextBlock.Text = $"{name}.cpp and {name}.h will be added to {Project.Current.Name}";
+		}
 
-        private async void OnCreate_ButtonClick(object sender, RoutedEventArgs e)
-        {
-            if (!Validate()) return;
-            IsEnabled = false;
+		private void OnScriptPath_TextBox_TextChanged(object sender, TextChangedEventArgs e)
+		{
+			Validate();
+		}
 
-            busyAnimation.Opacity = 0;
-            busyAnimation.Visibility = Visibility.Visible;
-            DoubleAnimation fadeIn = new DoubleAnimation(0, 1, new Duration(TimeSpan.FromMilliseconds(500)));
-            busyAnimation.BeginAnimation(OpacityProperty, fadeIn);
+		private async void OnCreate_ButtonClick(object sender, RoutedEventArgs e)
+		{
+			if (!Validate()) return;
+			IsEnabled = false;
 
-            try
-            {
-                var name = scriptName.Text.Trim();
-                var path = Path.GetFullPath(Path.Combine(Project.Current.Path, scriptPath.Text.Trim()));
-                var solution = Project.Current.Solution;
-                var projectName = Project.Current.Name;
+			busyAnimation.Opacity = 0;
+			busyAnimation.Visibility = Visibility.Visible;
+			DoubleAnimation fadeIn = new DoubleAnimation(0, 1, new Duration(TimeSpan.FromMilliseconds(500)));
+			busyAnimation.BeginAnimation(OpacityProperty, fadeIn);
 
-                await Task.Run(() => CreateScript(name, path, solution, projectName));
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine(ex.Message);
-                Logger.Log(MessageType.Error, $"Failed to Create Script {scriptName.Text}");
-            }
-            finally
-            {
-                DoubleAnimation fadeOut = new DoubleAnimation(1, 0, new Duration(TimeSpan.FromMilliseconds(200)));
-                fadeOut.Completed += (s, e) =>
-                {
-                    busyAnimation.Opacity = 0;
-                    busyAnimation.Visibility = Visibility.Hidden;
-                    Close();
-                };
-                busyAnimation.BeginAnimation(OpacityProperty, fadeOut);
+			try
+			{
+				var name = scriptName.Text.Trim();
+				var path = Path.GetFullPath(Path.Combine(Project.Current.Path, scriptPath.Text.Trim()));
+				var solution = Project.Current.Solution;
+				var projectName = Project.Current.Name;
 
-            }
-        }
+				await Task.Run(() => CreateScript(name, path, solution, projectName));
+			}
+			catch (Exception ex)
+			{
+				Debug.WriteLine(ex.Message);
+				Logger.Log(MessageType.Error, $"Failed to Create Script {scriptName.Text}");
+			}
+			finally
+			{
+				DoubleAnimation fadeOut = new DoubleAnimation(1, 0, new Duration(TimeSpan.FromMilliseconds(200)));
+				fadeOut.Completed += (s, e) =>
+				{
+					busyAnimation.Opacity = 0;
+					busyAnimation.Visibility = Visibility.Hidden;
+					Close();
+				};
+				busyAnimation.BeginAnimation(OpacityProperty, fadeOut);
 
-        private void CreateScript(string name, string path, string solution, string projectName)
-        {
-            if (!Directory.Exists(path)) Directory.CreateDirectory(path);
+			}
+		}
 
-            var cpp = Path.GetFullPath(Path.Combine(path, $"{name}.cpp"));
-            var h = Path.GetFullPath(Path.Combine(path, $"{name}.h"));
+		private void CreateScript(string name, string path, string solution, string projectName)
+		{
+			if (!Directory.Exists(path)) Directory.CreateDirectory(path);
 
-            using (var sw = File.CreateText(cpp))
-            {
-                sw.Write(string.Format(_cppCode, name, _namespace));
-            }
+			var cpp = Path.GetFullPath(Path.Combine(path, $"{name}.cpp"));
+			var h = Path.GetFullPath(Path.Combine(path, $"{name}.h"));
 
-            using (var sw = File.CreateText(h))
-            {
-                sw.Write(string.Format(_hCode, name, _namespace));
-            }
+			using (var sw = File.CreateText(cpp))
+			{
+				sw.Write(string.Format(_cppCode, name, _namespace));
+			}
 
-            string[] files = new string[] { cpp, h };
+			using (var sw = File.CreateText(h))
+			{
+				sw.Write(string.Format(_hCode, name, _namespace));
+			}
 
-            for (int i = 0; i < 3; ++i)
-            {
-                if (!VisualStudio.AddFilesToSolution(solution, projectName, files)) Thread.Sleep(1000);
-                else break;
-            }
-        }
+			string[] files = new string[] { cpp, h };
 
-        public NewScriptDialog()
-        {
-            InitializeComponent();
-            Owner = Application.Current.MainWindow;
-            scriptPath.Text = @"GameCode\";
-        }
-    }
+			for (int i = 0; i < 3; ++i)
+			{
+				if (!VisualStudio.AddFilesToSolution(solution, projectName, files)) Thread.Sleep(1000);
+				else break;
+			}
+		}
+
+		public NewScriptDialog()
+		{
+			InitializeComponent();
+			Owner = Application.Current.MainWindow;
+			scriptPath.Text = @"GameCode\";
+		}
+	}
 }
