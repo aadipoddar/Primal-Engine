@@ -61,7 +61,6 @@ namespace {1} {{
 		{
 			var projectName = Project.Current.Name;
 			if (string.IsNullOrEmpty(projectName)) return string.Empty;
-			projectName = Regex.Replace(projectName, @"[^A-Za-z0-9_]", "");
 
 			return projectName;
 		}
@@ -72,11 +71,11 @@ namespace {1} {{
 			var name = scriptName.Text.Trim();
 			var path = scriptPath.Text.Trim();
 			string errorMessage = string.Empty;
-			var nameRegex = new Regex(@"[^A-Za-z0-9_]");
+			var nameRegex = new Regex(@"^[A-Za-z_][A-Za-z0-9_]*$");
 
 			if (string.IsNullOrEmpty(name))
 				errorMessage = "Type in a Script Name";
-			else if (nameRegex.IsMatch(name))
+			else if (!nameRegex.IsMatch(name))
 				errorMessage = "Invalid Character(s) used is Script Name";
 			else if (string.IsNullOrEmpty(path))
 				errorMessage = "Type in a Script Path";
@@ -169,11 +168,7 @@ namespace {1} {{
 
 			string[] files = new string[] { cpp, h };
 
-			for (int i = 0; i < 3; ++i)
-			{
-				if (!VisualStudio.AddFilesToSolution(solution, projectName, files)) Thread.Sleep(1000);
-				else break;
-			}
+			VisualStudio.AddFilesToSolution(solution, projectName, files);
 		}
 
 		public NewScriptDialog()

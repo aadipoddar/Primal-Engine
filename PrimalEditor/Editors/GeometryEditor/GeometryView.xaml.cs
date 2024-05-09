@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
@@ -9,10 +8,10 @@ using System.Windows.Media.Media3D;
 
 namespace PrimalEditor.Editors
 {
-    /// <summary>
-    /// Interaction logic for GeometryView.xaml
-    /// </summary>
-    public partial class GeometryView : UserControl
+	/// <summary>
+	/// Interaction logic for GeometryView.xaml
+	/// </summary>
+	public partial class GeometryView : UserControl
     {
         private static readonly GeometryView _geometryView = new GeometryView() { Background = (Brush)Application.Current.FindResource("Editor.Window.GrayBrush4") };
         private Point _clickedPosition;

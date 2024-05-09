@@ -255,7 +255,7 @@ namespace PrimalEditor.Editors
         }
     }
 
-    class GeometryEditor : ViewModelBase, IAssetEditor
+	class GeometryEditor : ViewModelBase, IAssetEditor
     {
         public Asset Asset => Geometry;
 
