@@ -7,29 +7,31 @@
 			 d:DataContext="{d:DesignInstance Type=local:ContentBrowser}"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
+	
 	<UserControl.Resources>
+		<local:DataSizeToStringConverter x:Key="dataSizeToStringConverter"/>
 
-		<!-- Small icon style -->
+		<!--Small icon style-->
 		<Style x:Key="SmallIconStyle" TargetType="{x:Type Image}">
-			<Setter Property="Source" Value="{Binding IconSmall}" />
+			<Setter Property="Source" Value="{Binding IconSmall}"/>
 			<Style.Triggers>
-				<DataTrigger Binding="{Binding IsDirectory}" Value="True" >
-					<Setter Property="Source" Value="pack://application:,,,/Resources/ContentBrowser/FolderSmall.png" />
+				<DataTrigger Binding="{Binding IsDirectory}" Value="True">
+					<Setter Property="Source" Value="pack://application:,,,/Resources/ContentBrowser/FolderSmall.png"/>
 				</DataTrigger>
 			</Style.Triggers>
 		</Style>
 
-		<!-- Large icon style -->
+		<!--Large icon style-->
 		<Style x:Key="LargeIconStyle" TargetType="{x:Type Image}">
-			<Setter Property="Source" Value="{Binding Icon}" />
+			<Setter Property="Source" Value="{Binding Icon}"/>
 			<Style.Triggers>
-				<DataTrigger Binding="{Binding IsDirectory}" Value="True" >
-					<Setter Property="Source" Value="pack://application:,,,/Resources/ContentBrowser/FolderLarge.png" />
+				<DataTrigger Binding="{Binding IsDirectory}" Value="True">
+					<Setter Property="Source" Value="pack://application:,,,/Resources/ContentBrowser/FolderLarge.png"/>
 				</DataTrigger>
 			</Style.Triggers>
 		</Style>
 
-		<!-- Grid view column header gripper -->
+		<!--Grid view column header gripper-->
 		<Style x:Key="GridViewColumnHeaderGripper" TargetType="{x:Type Thumb}">
 			<Setter Property="Canvas.Right" Value="-9"/>
 			<Setter Property="Width" Value="18"/>
@@ -47,7 +49,7 @@
 			</Setter>
 		</Style>
 
-		<!-- Grid view column header -->
+		<!--Grid view column header-->
 		<Style x:Key="{x:Type GridViewColumnHeader}" TargetType="{x:Type GridViewColumnHeader}">
 			<Setter Property="HorizontalContentAlignment" Value="Center"/>
 			<Setter Property="VerticalContentAlignment" Value="Center"/>
@@ -122,7 +124,7 @@
 			</Style.Triggers>
 		</Style>
 
-		<!-- List view item style -->
+		<!--List view item style-->
 		<Style TargetType="{x:Type ListViewItem}">
 			<Setter Property="FocusVisualStyle" Value="{x:Null}"/>
 			<Setter Property="Foreground" Value="{StaticResource Editor.FontBrush}"/>
@@ -178,10 +180,11 @@
 		</Style>
 
 		<GridView x:Key="gridView">
-			<!-- Icon and File Name -->
+
+			<!--Icon and file name-->
 			<GridViewColumn>
 				<GridViewColumn.Header>
-					<GridViewColumnHeader Tag="FileName" Content="Name" />
+					<GridViewColumnHeader Tag="FileName" Content="Name"/>
 				</GridViewColumn.Header>
 				<GridViewColumn.CellTemplate>
 					<DataTemplate>
@@ -192,43 +195,94 @@
 					</DataTemplate>
 				</GridViewColumn.CellTemplate>
 			</GridViewColumn>
-
-			<!-- Date Modified -->
+			
+			<!--Date modified-->
 			<GridViewColumn>
 				<GridViewColumn.Header>
-					<GridViewColumnHeader Tag="DateModified" Content="Date Modified" />
+					<GridViewColumnHeader Tag="DateModified" Content="Date modified"/>
 				</GridViewColumn.Header>
 				<GridViewColumn.CellTemplate>
 					<DataTemplate>
-						<TextBlock Text="{Binding DateModified, StringFormat=dd-MMM-yy HH:mm:ss}"
-									   Margin="5,2,0,2" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+						<TextBlock Text="{Binding DateModified, StringFormat=dd.MMM.yy HH:mm:ss}"
+                                   Margin="5,2,0,2" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
 					</DataTemplate>
 				</GridViewColumn.CellTemplate>
 			</GridViewColumn>
 
-			<!-- File Size -->
-			<GridViewColumn DisplayMemberBinding="{Binding Size}">
+			<!--File size-->
+			<GridViewColumn DisplayMemberBinding="{Binding Size, Converter={StaticResource dataSizeToStringConverter}}">
 				<GridViewColumn.Header>
-					<GridViewColumnHeader Tag="Size" Content="Size" />
+					<GridViewColumnHeader Tag="Size" Content="Size"/>
 				</GridViewColumn.Header>
 			</GridViewColumn>
-
 		</GridView>
+
+		<DataTemplate x:Key="tileTemplate">
+			<StackPanel Width="48" HorizontalAlignment="Center" Margin="-4,0,0,0">
+				<Image Style="{StaticResource LargeIconStyle}" Width="45" HorizontalAlignment="Center"/>
+				<TextBlock Text="{Binding FileName}" TextTrimming="CharacterEllipsis" TextWrapping="Wrap" MaxHeight="60"
+                           Foreground="{StaticResource Editor.FontBrush}" HorizontalAlignment="Center" Margin="2,0"/>
+			</StackPanel>
+		</DataTemplate>
+
+		<local:PlainView x:Key="tileView" ItemTemplate="{StaticResource tileTemplate}">
+			<local:PlainView.ItemContainerStyle>
+				<Style TargetType="{x:Type ListBoxItem}" BasedOn="{StaticResource ListBoxItemStyle}">
+					<EventSetter Event="MouseDoubleClick" Handler="OnContent_Item_MouseDoubleClick"/>
+					<EventSetter Event="KeyDown" Handler="OnContent_Item_KeyDown"/>
+				</Style>
+			</local:PlainView.ItemContainerStyle>
+		</local:PlainView>
+
+		<!--ToggleButton style-->
+		<Style TargetType="{x:Type ToggleButton}" x:Key="ListViewToggleButtonStyle">
+			<Setter Property="Background" Value="Transparent"/>
+			<Setter Property="BorderBrush" Value="{StaticResource Editor.Window.GrayBrush4}"/>
+			<Setter Property="BorderThickness" Value="1"/>
+			<Setter Property="Padding" Value="2"/>
+			<Setter Property="Margin" Value="5,0"/>
+			<Setter Property="Focusable" Value="False"/>
+			<Setter Property="ToolTip" Value="List view"/>
+			<Setter Property="Template">
+				<Setter.Value>
+					<ControlTemplate TargetType="{x:Type ToggleButton}">
+						<Border x:Name="border" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}"
+                                Background="{TemplateBinding Background}" SnapsToDevicePixels="True">
+							<Image x:Name="image" Source="/Resources/ContentBrowser/ListView.png" Width="16" Opacity="0.8"/>
+						</Border>
+						<ControlTemplate.Triggers>
+							<Trigger Property="IsChecked" Value="True">
+								<Setter Property="Source" TargetName="image" Value="/Resources/ContentBrowser/TileView.png"/>
+								<Setter Property="ToolTip" TargetName="border" Value="Tile view"/>
+							</Trigger>
+							<Trigger Property="IsMouseOver" Value="True">
+								<Setter Property="BorderBrush" TargetName="border" Value="{StaticResource Editor.MouseOver.BorderBrush}"/>
+							</Trigger>
+						</ControlTemplate.Triggers>
+					</ControlTemplate>
+				</Setter.Value>
+			</Setter>
+		</Style>
 	</UserControl.Resources>
 
 	<Grid Background="{StaticResource Editor.Window.GrayBrush2}">
 		<Grid.RowDefinitions>
-			<RowDefinition Height="auto" />
-			<RowDefinition />
+			<RowDefinition Height="auto"/>
+			<RowDefinition/>
 		</Grid.RowDefinitions>
 
-		<ListView ItemsSource="{Binding FolderContent}" Grid.Row="1" x:Name="folderListView"
-		  IsTextSearchEnabled="True" TextSearch.TextPath="FileName">
+		<ListView ItemsSource="{Binding FolderContent}" Grid.Row="1" x:Name="folderListView" IsTextSearchEnabled="True" TextSearch.TextPath="FileName">
 			<ListView.Style>
 				<Style TargetType="{x:Type ListView}">
 					<Setter Property="Background" Value="{StaticResource Editor.Window.GrayBrush2}"/>
 					<Setter Property="ListBox.BorderThickness" Value="0"/>
 					<Setter Property="View" Value="{StaticResource gridView}"/>
+					<Setter Property="SelectionMode" Value="{Binding Path=SelectionMode, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type local:ContentBrowserView}}}"/>
+					<Style.Triggers>
+						<DataTrigger Binding="{Binding Path=IsChecked, ElementName=listViewToggle}" Value="False">
+							<Setter Property="View" Value="{StaticResource tileView}"/>
+						</DataTrigger>
+					</Style.Triggers>
 				</Style>
 			</ListView.Style>
 		</ListView>
@@ -239,6 +293,7 @@
 			</Border.Effect>
 			<DockPanel>
 				<DockPanel Margin="5" DockPanel.Dock="Top">
+					<ToggleButton DockPanel.Dock="Right" Style="{StaticResource ListViewToggleButtonStyle}" x:Name="listViewToggle"/>
 					<TextBox/>
 				</DockPanel>
 				<StackPanel Orientation="Horizontal" x:Name="pathStack" Margin="0,5">
