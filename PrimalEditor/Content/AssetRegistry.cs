@@ -1,10 +1,8 @@
 ﻿using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
-using System.Windows;
 
 using PrimalEditor.Common;
-using PrimalEditor.Utilities;
 
 namespace PrimalEditor.Content
 {

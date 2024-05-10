@@ -271,7 +271,9 @@
 			<RowDefinition/>
 		</Grid.RowDefinitions>
 
-		<ListView ItemsSource="{Binding FolderContent}" Grid.Row="1" x:Name="folderListView" IsTextSearchEnabled="True" TextSearch.TextPath="FileName">
+		<ListView ItemsSource="{Binding FolderContent}" Grid.Row="1" x:Name="folderListView"
+				  IsTextSearchEnabled="True" TextSearch.TextPath="FileName"
+				  SelectionChanged="OnFolderContent_ListView_SelectionChanged">
 			<ListView.Style>
 				<Style TargetType="{x:Type ListView}">
 					<Setter Property="Background" Value="{StaticResource Editor.Window.GrayBrush2}"/>
