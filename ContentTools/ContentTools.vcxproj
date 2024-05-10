@@ -64,14 +64,19 @@
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>C:\Program Files\Autodesk\FBX\FBX SDK\2020.3.7\include;$(SolutionDir)Engine\Common</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)Autodesk_FBX_SDK\include;$(SolutionDir)Engine\Common</AdditionalIncludeDirectories>
       <AdditionalOptions>/ignore:4099 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
+      <AdditionalDependencies>$(ProjectDir)Autodesk_FBX_SDK\lib\debug\libfbxsdk-md.lib;$(ProjectDir)Autodesk_FBX_SDK\lib\debug\libxml2-md.lib;$(ProjectDir)Autodesk_FBX_SDK\lib\debug\zlib-md.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PreBuildEvent>
+      <Command>powershell -Command "Expand-Archive Autodesk_FBX_SDK.zip"</Command>
+      <Message>Extracts the .zip File to get the FBX SDK FIles</Message>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseEditor|x64'">
     <ClCompile>
@@ -85,7 +90,7 @@
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>C:\Program Files\Autodesk\FBX\FBX SDK\2020.3.7\include;$(SolutionDir)Engine\Common</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)Autodesk_FBX_SDK\include;$(SolutionDir)Engine\Common</AdditionalIncludeDirectories>
       <AdditionalOptions>/ignore:4099 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
@@ -94,7 +99,12 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
+      <AdditionalDependencies>$(ProjectDir)Autodesk_FBX_SDK\lib\release\libfbxsdk-md.lib;$(ProjectDir)Autodesk_FBX_SDK\lib\release\libxml2-md.lib;$(ProjectDir)Autodesk_FBX_SDK\lib\release\zlib-md.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PreBuildEvent>
+      <Command>powershell -Command "Expand-Archive Autodesk_FBX_SDK.zip"</Command>
+      <Message>Extracts the .zip File to get the FBX SDK FIles</Message>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

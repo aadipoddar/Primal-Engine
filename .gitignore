@@ -349,3 +349,4 @@ MigrationBackup/
 # Ionide (cross platform F# VS Code tools) working folder
 .ionide/
 EngineTest/shaders
+ContentTools/Autodesk_FBX_SDK

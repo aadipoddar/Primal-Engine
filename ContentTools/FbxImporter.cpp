@@ -1,22 +1,6 @@
 #include "FbxImpoter.h"
 #include "Geometry.h"
 
-// If you get any compilation or linker errors than make sure that
-// 1) FBX SDK 2022.3 or later is installed on your systems
-// 2) The include Path to fbxsdk.h is added to "Additional Include Directories" (Compiler Settings)
-// 3) The library paths in the following section point to the correct location
-
-#if _DEBUG
-#pragma comment (lib, "C:\\Program Files\\Autodesk\\FBX\\FBX SDK\\2020.3.7\\lib\\x64\\debug\\libfbxsdk-md.lib")
-#pragma comment (lib, "C:\\Program Files\\Autodesk\\FBX\\FBX SDK\\2020.3.7\\lib\\x64\\debug\\libxml2-md.lib")
-#pragma comment (lib, "C:\\Program Files\\Autodesk\\FBX\\FBX SDK\\2020.3.7\\lib\\x64\\debug\\zlib-md.lib")
-#else
-#pragma comment (lib, "C:\\Program Files\\Autodesk\\FBX\\FBX SDK\\2020.3.7\\lib\\x64\\release\\libfbxsdk-md.lib")
-#pragma comment (lib, "C:\\Program Files\\Autodesk\\FBX\\FBX SDK\\2020.3.7\\lib\\x64\\release\\libxml2-md.lib")
-#pragma comment (lib, "C:\\Program Files\\Autodesk\\FBX\\FBX SDK\\2020.3.7\\lib\\x64\\release\\zlib-md.lib")
-#endif // _DEBUG
-
-
 namespace primal::tools {
 
 	namespace {
