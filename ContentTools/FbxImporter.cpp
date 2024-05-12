@@ -78,11 +78,14 @@ namespace primal::tools {
 					lod.name = lod.meshes[0].name;
 					_scene->lod_groups.emplace_back(lod);
 				}
-				else if (node->GetLodGroup())
-				{
-					get_lod_group(node);
-				}
+			}
+			else if (node->GetLodGroup())
+			{
+				get_lod_group(node);
+			}
 
+			else
+			{
 				// See if there's a mesh somewhere further down the hierarchy
 				get_scene(node);
 			}
@@ -107,11 +110,14 @@ namespace primal::tools {
 			m.lod_threshold = -1.f;
 			m.name = (node->GetName()[0] != '\0') ? node->GetName() : fbx_mesh->GetName();
 
-			/*if (get_mesh_data(fbx_mesh, m))
+			if (get_mesh_data(fbx_mesh, m))
 			{
 				meshes.emplace_back(m);
-			}*/
+			}
 		}
+
+		// See if there's a mesh somewhere further down the hierarchy
+		get_scene(node);
 	}
 
 	void fbx_context::get_lod_group(FbxNode* node)

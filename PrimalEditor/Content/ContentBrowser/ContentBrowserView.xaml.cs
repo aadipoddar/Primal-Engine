@@ -8,7 +8,10 @@ using System.Windows.Controls.Primitives;
 using System.Windows.Data;
 using System.Windows.Input;
 
+using PrimalEditor.Common;
 using PrimalEditor.GameProject;
+
+using Windows.Devices.Geolocation;
 
 namespace PrimalEditor.Content
 {
@@ -130,6 +133,7 @@ namespace PrimalEditor.Content
 			DataContext = null;
 			InitializeComponent();
 			Loaded += OnContentBrowserLoaded;
+			AllowDrop = true;
 		}
 
 		private void OnContentBrowserLoaded(object sender, RoutedEventArgs e)
@@ -266,6 +270,20 @@ namespace PrimalEditor.Content
 			}
 		}
 
+		private void folderListView_Drop(object sender, DragEventArgs e)
+		{
+			var vm = DataContext as ContentBrowser;
+			if (vm.SelectedFolder != null && e.Data.GetDataPresent(DataFormats.FileDrop))
+			{
+				var files = (string[])e.Data.GetData(DataFormats.FileDrop);
+				if (files?.Length > 0 && Directory.Exists(vm.SelectedFolder))
+				{
+					_ = ContentHelper.ImportFileAsync(files, vm.SelectedFolder);
+					e.Handled = true;
+				}
+			}
+		}
+
 		private void OnFolderContent_ListView_SelectionChanged(object sender, SelectionChangedEventArgs e)
 		{
 			var item = folderListView.SelectedItem as ContentInfo;
@@ -282,5 +300,5 @@ namespace PrimalEditor.Content
 			(DataContext as ContentBrowser)?.Dispose();
 			DataContext = null;
 		}
-	}
+    }
 }

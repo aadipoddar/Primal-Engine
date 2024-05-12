@@ -7,7 +7,7 @@
 			 d:DataContext="{d:DesignInstance Type=local:ContentBrowser}"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
-	
+
 	<UserControl.Resources>
 		<local:DataSizeToStringConverter x:Key="dataSizeToStringConverter"/>
 
@@ -195,7 +195,7 @@
 					</DataTemplate>
 				</GridViewColumn.CellTemplate>
 			</GridViewColumn>
-			
+
 			<!--Date modified-->
 			<GridViewColumn>
 				<GridViewColumn.Header>
@@ -273,11 +273,13 @@
 
 		<ListView ItemsSource="{Binding FolderContent}" Grid.Row="1" x:Name="folderListView"
 				  IsTextSearchEnabled="True" TextSearch.TextPath="FileName"
-				  SelectionChanged="OnFolderContent_ListView_SelectionChanged">
+				  SelectionChanged="OnFolderContent_ListView_SelectionChanged"
+				  Drop="folderListView_Drop">
 			<ListView.Style>
 				<Style TargetType="{x:Type ListView}">
 					<Setter Property="Background" Value="{StaticResource Editor.Window.GrayBrush2}"/>
 					<Setter Property="ListBox.BorderThickness" Value="0"/>
+					<Setter Property="AllowDrop" Value="{Binding Path=AllowDrop, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type local:ContentBrowserView}}}" />
 					<Setter Property="View" Value="{StaticResource gridView}"/>
 					<Setter Property="SelectionMode" Value="{Binding Path=SelectionMode, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type local:ContentBrowserView}}}"/>
 					<Style.Triggers>

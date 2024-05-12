@@ -18,14 +18,18 @@ namespace PrimalEditor.GameProject
 		public static string Extension => ".primal";
 		[DataMember]
 		public string Name { get; private set; } = "New Project";
+		/// <summary>
+		/// Gets the root folder that contains the current project.
+		/// </summary>
 		[DataMember]
 		public string Path { get; private set; }
-
+		/// <summary>
+		/// Gets the Full Path of the current Primal Project File, including its File name and Extensions
+		/// </summary>
 		public string FullPath => $@"{Path}{Name}{Extension}";
-
 		public string Solution => $@"{Path}{Name}.sln";
-
 		public string ContentPath => $@"{Path}Content\";
+		public string TempFodler => $@"{Path}.Primal\Temp\";
 
 
 		private int _buildConfig;
@@ -95,7 +99,6 @@ namespace PrimalEditor.GameProject
 		public ICommand DebugStartWithoutDebuggingCommand { get; private set; }
 		public ICommand DebugStopCommand { get; private set; }
 		public ICommand BuildCommand { get; private set; }
-
 
 		private void SetCommands()
 		{
@@ -171,6 +174,15 @@ namespace PrimalEditor.GameProject
 			VisualStudio.CloseVisualStudio();
 			UndoRedo.Reset();
 			Logger.Clear();
+			DeleteTempFolder();
+		}
+
+		private void DeleteTempFolder()
+		{
+			if (Directory.Exists(TempFodler))
+			{
+				Directory.Delete(TempFodler, true);
+			}
 		}
 
 		private static void Save(Project project)
