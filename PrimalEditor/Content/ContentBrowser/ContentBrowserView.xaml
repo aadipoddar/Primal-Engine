@@ -274,7 +274,7 @@
 		<ListView ItemsSource="{Binding FolderContent}" Grid.Row="1" x:Name="folderListView"
 				  IsTextSearchEnabled="True" TextSearch.TextPath="FileName"
 				  SelectionChanged="OnFolderContent_ListView_SelectionChanged"
-				  Drop="folderListView_Drop">
+				  Drop="OnFolderContent_ListView_Drop">
 			<ListView.Style>
 				<Style TargetType="{x:Type ListView}">
 					<Setter Property="Background" Value="{StaticResource Editor.Window.GrayBrush2}"/>

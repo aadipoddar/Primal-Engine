@@ -5,20 +5,17 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
-using Microsoft.Win32;
-
 using PrimalEditor.ContentToolsAPIStructs;
 using PrimalEditor.DllWrapper;
 using PrimalEditor.Editors;
-using PrimalEditor.GameProject;
 using PrimalEditor.Utilities.Controls;
 
 namespace PrimalEditor.Content
 {
-    /// <summary>
-    /// Interaction logic for PrimitiveMeshDialog.xaml
-    /// </summary>
-    public partial class PrimitiveMeshDialog : Window
+	/// <summary>
+	/// Interaction logic for PrimitiveMeshDialog.xaml
+	/// </summary>
+	public partial class PrimitiveMeshDialog : Window
     {
         private static readonly List<ImageBrush> _textures = new List<ImageBrush>();
 

@@ -11,7 +11,7 @@ namespace PrimalEditor.Content
 		Material,
 		Mesh,
 		Skeleton,
-        Texture
+		Texture
 	}
 
 	sealed class AssetInfo
@@ -56,6 +56,7 @@ namespace PrimalEditor.Content
 
 		public abstract void Import(string file);
 
+		public abstract void Load(string file);
 		public abstract IEnumerable<string> Save(string file);
 
 		private static AssetInfo GetAssetInfo(BinaryReader reader)
@@ -79,6 +80,9 @@ namespace PrimalEditor.Content
 			return info;
 		}
 
+		public static AssetInfo TryGetAssetInfo(string file) => 
+			File.Exists(file) && Path.GetExtension(file) == AssetFileExtension ? AssetRegistry.GetAssetInfo(file) ?? GetAssetInfo(file) : null;
+
 		public static AssetInfo GetAssetInfo(string file)
 		{
 			Debug.Assert(File.Exists(file) && Path.GetExtension(file) == AssetFileExtension);
@@ -97,8 +101,8 @@ namespace PrimalEditor.Content
 
 		protected void WriteAssetFileHeader(BinaryWriter writer)
 		{
-            var id = Guid.ToByteArray();
-            var importDate = DateTime.Now.ToBinary();
+			var id = Guid.ToByteArray();
+			var importDate = DateTime.Now.ToBinary();
 
 			writer.BaseStream.Position = 0;
 
@@ -107,7 +111,7 @@ namespace PrimalEditor.Content
 			writer.Write(id);
 			writer.Write(importDate);
 
-            // Asset Hash is Optional
+			// Asset Hash is Optional
 			if (Hash?.Length > 0)
 			{
 				writer.Write(Hash.Length);
