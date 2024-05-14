@@ -15,6 +15,35 @@ namespace PrimalEditor.Editors
 
 	class MeshRendererVertexData : ViewModelBase
 	{
+		private bool _isHighlighted;
+		public bool IsHighlighted
+		{
+			get { return _isHighlighted; }
+			set
+			{
+				if (_isHighlighted != value)
+				{
+					_isHighlighted = value;
+					OnPropertyChanged(nameof(IsHighlighted));
+					OnPropertyChanged(nameof(Diffuse));
+				}
+			}
+		}
+
+		private bool _isIsolated;
+		public bool IsIsolated
+		{
+			get => _isIsolated;
+			set
+			{
+				if (_isIsolated != value)
+				{
+					_isIsolated = value;
+					OnPropertyChanged(nameof(IsIsolated));
+				}
+			}
+		}
+
 		private Brush _specular = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#ff111111"));
 		public Brush Specular
 		{
@@ -32,7 +61,7 @@ namespace PrimalEditor.Editors
 		private Brush _diffuse = Brushes.White;
 		public Brush Diffuse
 		{
-			get => _diffuse;
+			get => _isHighlighted ? Brushes.Orange : _diffuse;
 			set
 			{
 				if (_diffuse != value)
@@ -43,6 +72,7 @@ namespace PrimalEditor.Editors
 			}
 		}
 
+		public string Name { get; set; }
 		public Point3DCollection Positions { get; } = new Point3DCollection();
 		public Vector3DCollection Normals { get; } = new Vector3DCollection();
 		public PointCollection UVs { get; } = new PointCollection();
@@ -175,7 +205,7 @@ namespace PrimalEditor.Editors
 
 			foreach (Mesh mesh in lod.Meshes)
 			{
-				MeshRendererVertexData vertexData = new();
+				var vertexData = new MeshRendererVertexData() { Name = mesh.Name };
 				// Unpack all vertices
 				using (BinaryReader reader = new(new MemoryStream(mesh.Vertices)))
 				{
@@ -230,6 +260,17 @@ namespace PrimalEditor.Editors
 			{
 				CameraTarget = old.CameraTarget;
 				CameraPosition = old.CameraPosition;
+
+				// NOTE: This is only for primitive meshes with multiple LODs,
+				//			because they are displayed with textures:
+				foreach (var mesh in old.Meshes)
+				{
+					mesh.IsHighlighted = false;
+				}
+				foreach (var mesh in Meshes)
+				{
+					mesh.Diffuse = old.Meshes.First().Diffuse;
+				}
 			}
 			else
 			{

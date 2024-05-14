@@ -45,14 +45,20 @@
 				<CheckBox IsChecked="{Binding AutoLOD}" VerticalAlignment="Center"/>
 			</StackPanel>
 		</Border>
+		
 		<Grid>
 			<Grid.ColumnDefinitions>
 				<ColumnDefinition MinWidth="250" MaxWidth="400"/>
 				<ColumnDefinition/>
 			</Grid.ColumnDefinitions>
+
+			<ed:GeometryDetailsView Tag="{Binding ElementName=geometryView}"/>
+			
 			<GridSplitter HorizontalAlignment="Right" Width="5" Background="{StaticResource Editor.Window.GrayBrush1}"
                           VerticalAlignment="Stretch"/>
+
 			<ed:GeometryView DataContext="{Binding MeshRenderer}" Grid.Column="1" x:Name="geometryView"/>
+
 			<StackPanel Grid.Column="1" Margin="5" VerticalAlignment="Top" HorizontalAlignment="Left" IsHitTestVisible="False">
 				<StackPanel Orientation="Vertical">
 					<TextBlock Foreground="{StaticResource Editor.OrangeBrush}">
