@@ -29,7 +29,7 @@ namespace PrimalEditor.GameProject
 		public string FullPath => $@"{Path}{Name}{Extension}";
 		public string Solution => $@"{Path}{Name}.sln";
 		public string ContentPath => $@"{Path}Content\";
-		public string TempFodler => $@"{Path}.Primal\Temp\";
+		public string TempFolder => $@"{Path}.Primal\Temp\";
 
 
 		private int _buildConfig;
@@ -179,9 +179,9 @@ namespace PrimalEditor.GameProject
 
 		private void DeleteTempFolder()
 		{
-			if (Directory.Exists(TempFodler))
+			if (Directory.Exists(TempFolder))
 			{
-				Directory.Delete(TempFodler, true);
+				Directory.Delete(TempFolder, true);
 			}
 		}
 

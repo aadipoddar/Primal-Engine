@@ -63,7 +63,7 @@
                         <Setter Property="Visibility" Value="Collapsed"/>
                         <Style.Triggers>
                             <DataTrigger Binding="{Binding SelectedItem, ElementName=primalTypeComboBox}"
-                                         Value="{x:Static local:PrimitveMeshType.Plane}">
+                                         Value="{x:Static local:PrimitiveMeshType.Plane}">
                                 <Setter Property="Visibility" Value="Visible"/>
                             </DataTrigger>
                         </Style.Triggers>
@@ -127,7 +127,7 @@
                         <Setter Property="Visibility" Value="Collapsed"/>
                         <Style.Triggers>
                             <DataTrigger Binding="{Binding SelectedItem, ElementName=primalTypeComboBox}"
-                                         Value="{x:Static local:PrimitveMeshType.UVSphere}">
+                                         Value="{x:Static local:PrimitiveMeshType.UvSphere}">
                                 <Setter Property="Visibility" Value="Visible"/>
                             </DataTrigger>
                         </Style.Triggers>

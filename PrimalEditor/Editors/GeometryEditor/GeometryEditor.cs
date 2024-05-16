@@ -9,16 +9,14 @@ using PrimalEditor.Content;
 
 namespace PrimalEditor.Editors
 {
-	// NOTE: The purpose of this class is to enable viewing 3D geometry in WPF while
-	//       we don't have a graphics renderer in the game engine. When we have a
-	//       renderer, this class and the WPF viewer will become obsolete.
-
+	// NOTE: the purpose of this class is to enable viewing 3D geometry in WPF while we don't have a graphics renderer
+	//       in the game engine. When we have a renderer, this class and the WPF viewer will become obsolite.
 	class MeshRendererVertexData : ViewModelBase
 	{
 		private bool _isHighlighted;
 		public bool IsHighlighted
 		{
-			get { return _isHighlighted; }
+			get => _isHighlighted;
 			set
 			{
 				if (_isHighlighted != value)
@@ -79,6 +77,8 @@ namespace PrimalEditor.Editors
 		public Int32Collection Indices { get; } = new Int32Collection();
 	}
 
+	// NOTE: the purpose of this class is to enable viewing 3D geometry in WPF while we don't have a graphics renderer
+	//       in the game engine. When we have a renderer, this class and the WPF viewer will become obsolite.
 	class MeshRenderer : ViewModelBase
 	{
 		public ObservableCollection<MeshRendererVertexData> Meshes { get; } = new ObservableCollection<MeshRendererVertexData>();
@@ -128,8 +128,7 @@ namespace PrimalEditor.Editors
 			}
 		}
 
-		public Point3D OffsetCameraPosition =>
-			new(CameraPosition.X + CameraTarget.X, CameraPosition.Y + CameraTarget.Y, CameraPosition.Z + CameraTarget.Z);
+		public Point3D OffsetCameraPosition => new(CameraPosition.X + CameraTarget.X, CameraPosition.Y + CameraTarget.Y, CameraPosition.Z + CameraTarget.Z);
 
 		private Color _keyLight = (Color)ColorConverter.ConvertFromString("#ffaeaeae");
 		public Color KeyLight
@@ -187,14 +186,11 @@ namespace PrimalEditor.Editors
 			}
 		}
 
-		public MeshRenderer(MeshLOD lod, MeshRenderer old)
+		public MeshRenderer(MeshLOD lod, MeshRenderer old, string oldMeshName = "")
 		{
 			Debug.Assert(lod?.Meshes.Any() == true);
 
-			// Calculate vertex size minus the position and normal vectors (by skipping not relevent data)
-			int offset = lod.Meshes[0].VertexSize - 3 * sizeof(float) - sizeof(int) - 2 * sizeof(short);
-
-			// In order to set up camera position and target properly, we need to figure out how big this object is
+			// In order to set up camera position and target propertly, we need to figure out how big this object is
 			// that we're rendering. Hence, we need to know its bounding box.
 			double minX, minY, minZ; minX = minY = minZ = double.MaxValue;
 			double maxX, maxY, maxZ; maxX = maxY = maxZ = double.MinValue;
@@ -205,9 +201,9 @@ namespace PrimalEditor.Editors
 
 			foreach (Mesh mesh in lod.Meshes)
 			{
-				var vertexData = new MeshRendererVertexData() { Name = mesh.Name };
+				MeshRendererVertexData vertexData = new() { Name = mesh.Name };
 				// Unpack all vertices
-				using (BinaryReader reader = new(new MemoryStream(mesh.Vertices)))
+				using (BinaryReader reader = new(new MemoryStream(mesh.Positions)))
 				{
 					for (int i = 0; i < mesh.VertexCount; ++i)
 					{
@@ -215,28 +211,49 @@ namespace PrimalEditor.Editors
 						float posX = reader.ReadSingle();
 						float posY = reader.ReadSingle();
 						float posZ = reader.ReadSingle();
-						uint signs = (reader.ReadUInt32() >> 24) & 0x000000ff;
 						vertexData.Positions.Add(new Point3D(posX, posY, posZ));
 
 						// Adjust the bounding box
 						minX = Math.Min(minX, posX); maxX = Math.Max(maxX, posX);
 						minY = Math.Min(minY, posY); maxY = Math.Max(maxY, posY);
 						minZ = Math.Min(minZ, posZ); maxZ = Math.Max(maxZ, posZ);
+					}
+				}
 
-						// Read normals
-						float nrmX = reader.ReadUInt16() * intervals - 1.0f;
-						float nrmY = reader.ReadUInt16() * intervals - 1.0f;
-						double nrmZ = Math.Sqrt(Math.Clamp(1f - (nrmX * nrmX + nrmY * nrmY), 0f, 1f)) * ((signs & 0x2) - 1f);
-						Vector3D normal = new(nrmX, nrmY, nrmZ);
-						normal.Normalize();
-						vertexData.Normals.Add(normal);
-						avgNormal += normal;
+				if (mesh.ElementsType.HasFlag(ElementsType.Normals))
+				{
+					int tSpaceOffset = 0;
+					if (mesh.ElementsType.HasFlag(ElementsType.Joints)) tSpaceOffset = sizeof(short) * 4; // skip joint indices.
+																										  // Read tangent space
+					using (BinaryReader reader = new(new MemoryStream(mesh.Elements)))
+					{
+						for (int i = 0; i < mesh.VertexCount; ++i)
+						{
+							uint signs = (reader.ReadUInt32() >> 24) & 0x000000ff;
+							reader.BaseStream.Position += tSpaceOffset;
+							// Read normals
+							float nrmX = reader.ReadUInt16() * intervals - 1.0f;
+							float nrmY = reader.ReadUInt16() * intervals - 1.0f;
+							double nrmZ = Math.Sqrt(Math.Clamp(1f - (nrmX * nrmX + nrmY * nrmY), 0f, 1f)) * ((signs & 0x2) - 1f);
+							Vector3D normal = new(nrmX, nrmY, nrmZ);
+							normal.Normalize();
+							vertexData.Normals.Add(normal);
+							avgNormal += normal;
 
-						// Read UVs (skip tangent and joint data)
-						reader.BaseStream.Position += (offset - sizeof(float) * 2);
-						float u = reader.ReadSingle();
-						float v = reader.ReadSingle();
-						vertexData.UVs.Add(new Point(u, v));
+							// Read UVs
+							if (mesh.ElementsType.HasFlag(ElementsType.TSpace))
+							{
+								reader.BaseStream.Position += sizeof(short) * 2; // skip tangents.
+								float u = reader.ReadSingle();
+								float v = reader.ReadSingle();
+								vertexData.UVs.Add(new Point(u, v));
+							}
+
+							if (mesh.ElementsType.HasFlag(ElementsType.Joints) && mesh.ElementsType.HasFlag(ElementsType.Colors))
+							{
+								reader.BaseStream.Position += 4; // skip colors.
+							}
+						}
 					}
 				}
 
@@ -256,18 +273,18 @@ namespace PrimalEditor.Editors
 			}
 
 			// set camera target and position
-			if (old != null)
+			if (old != null && lod.Name == oldMeshName)
 			{
 				CameraTarget = old.CameraTarget;
 				CameraPosition = old.CameraPosition;
 
-				// NOTE: This is only for primitive meshes with multiple LODs,
-				//			because they are displayed with textures:
-				foreach (var mesh in old.Meshes)
+				// NOTE: this is only for primitive meshes with multiple LODs,
+				//       because they're displayed with textures
+				foreach (MeshRendererVertexData mesh in old.Meshes)
 				{
 					mesh.IsHighlighted = false;
 				}
-				foreach (var mesh in Meshes)
+				foreach (MeshRendererVertexData mesh in Meshes)
 				{
 					mesh.Diffuse = old.Meshes.First().Diffuse;
 				}
@@ -279,7 +296,6 @@ namespace PrimalEditor.Editors
 				double height = maxY - minY;
 				double depth = maxZ - minZ;
 				double radius = new Vector3D(height, width, depth).Length * 1.2;
-
 				if (avgNormal.Length > 0.8)
 				{
 					avgNormal.Normalize();
@@ -298,6 +314,8 @@ namespace PrimalEditor.Editors
 
 	class GeometryEditor : ViewModelBase, IAssetEditor
 	{
+		private string _oldMeshName;
+
 		Asset IAssetEditor.Asset => Geometry;
 
 		private Content.Geometry _geometry;
@@ -324,7 +342,7 @@ namespace PrimalEditor.Editors
 				{
 					_meshRenderer = value;
 					OnPropertyChanged(nameof(MeshRenderer));
-					var lods = Geometry.GetLODGroup().LODs;
+					ObservableCollection<MeshLOD> lods = Geometry.GetLODGroup().LODs;
 					MaxLODIndex = (lods.Count > 0) ? lods.Count - 1 : 0;
 					OnPropertyChanged(nameof(MaxLODIndex));
 					if (lods.Count > 1)
@@ -333,7 +351,6 @@ namespace PrimalEditor.Editors
 						{
 							if (e.PropertyName == nameof(MeshRenderer.OffsetCameraPosition) && AutoLOD) ComputeLOD(lods);
 						};
-
 						ComputeLOD(lods);
 					}
 				}
@@ -343,7 +360,7 @@ namespace PrimalEditor.Editors
 		private bool _autoLOD = true;
 		public bool AutoLOD
 		{
-			get { return _autoLOD; }
+			get => _autoLOD;
 			set
 			{
 				if (_autoLOD != value)
@@ -359,28 +376,26 @@ namespace PrimalEditor.Editors
 		private int _lodIndex;
 		public int LODIndex
 		{
-			get { return _lodIndex; }
+			get => _lodIndex;
 			set
 			{
-				var lods = Geometry.GetLODGroup().LODs;
-				value = Math.Clamp(value, 0, lods.Count);
+				ObservableCollection<MeshLOD> lods = Geometry.GetLODGroup().LODs;
+				value = Math.Clamp(value, 0, lods.Count - 1);
 				if (_lodIndex != value)
 				{
 					_lodIndex = value;
 					OnPropertyChanged(nameof(LODIndex));
-					MeshRenderer = new MeshRenderer(lods[value], MeshRenderer);
+					MeshRenderer = new MeshRenderer(lods[value], MeshRenderer, lods[value].Name); // restart camera position if we change mesh type
 				}
 			}
 		}
-
 
 		private void ComputeLOD(IList<MeshLOD> lods)
 		{
 			if (!AutoLOD) return;
 
-			var p = MeshRenderer.OffsetCameraPosition;
-			var distance = new Vector3D(p.X, p.Y, p.Z).Length;
-
+			Point3D p = MeshRenderer.OffsetCameraPosition;
+			double distance = new Vector3D(p.X, p.Y, p.Z).Length;
 			for (int i = MaxLODIndex; i >= 0; --i)
 			{
 				if (lods[i].LodThreshold < distance)
@@ -397,14 +412,12 @@ namespace PrimalEditor.Editors
 			if (asset is Content.Geometry geometry)
 			{
 				Geometry = geometry;
-				var numLods = geometry.GetLODGroup().LODs.Count;
-				if (LODIndex >= numLods)
-				{
-					LODIndex = numLods - 1;
-				}
+				int numLods = geometry.GetLODGroup().LODs.Count;
+				if (LODIndex >= numLods) LODIndex = numLods - 1;
 				else
 				{
-					MeshRenderer = new MeshRenderer(Geometry.GetLODGroup().LODs[0], MeshRenderer);
+					MeshRenderer = new MeshRenderer(Geometry.GetLODGroup().LODs[0], MeshRenderer, _oldMeshName);
+					_oldMeshName = geometry.GetLODGroup().LODs[0].Name;
 				}
 			}
 		}
@@ -414,7 +427,7 @@ namespace PrimalEditor.Editors
 			try
 			{
 				Debug.Assert(info != null && File.Exists(info.FullPath));
-				var geometry = new Content.Geometry();
+				Content.Geometry geometry = new();
 				await Task.Run(() =>
 				{
 					geometry.Load(info.FullPath);

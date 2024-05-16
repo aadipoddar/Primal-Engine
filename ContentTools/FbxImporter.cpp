@@ -222,7 +222,7 @@ namespace primal::tools {
 			}
 		}
 
-		// import triangles
+		// import Tangents
 		if (import_tangents) {
 			FbxLayerElementArrayTemplate<FbxVector4>* tangents{ nullptr };
 			// calculate tangents using FBX's built-in method, but only if no tangent data is already there
@@ -233,8 +233,8 @@ namespace primal::tools {
 					FbxVector4 t{ tangents->GetAt(i) };
 					const f32 handedness{ (f32)t[3] };
 					t[3] = 0.0;
+					t = transform.MultT(t);
 					t.Normalize();
-					t = inverse_transpose.MultT(t);
 					m.tangents.emplace_back((f32)t[0], (f32)t[1], (f32)t[2], handedness);
 				}
 			}

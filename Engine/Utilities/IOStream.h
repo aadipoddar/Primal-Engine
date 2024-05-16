@@ -49,7 +49,7 @@ namespace primal::utl {
 		DISABLE_COPY_AND_MOVE(blob_stream_writer);
 
 		explicit blob_stream_writer(u8* buffer, size_t buffer_size) : _buffer{ buffer }, _position{ buffer }, _buffer_size{ buffer_size } {
-			assert(buffer&& buffer_size);
+			assert(buffer && buffer_size);
 		}
 
 		// This template function is intended to write primitive types (e.g. int, float, bool)

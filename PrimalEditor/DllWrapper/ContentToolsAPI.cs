@@ -27,7 +27,7 @@ namespace PrimalEditor.ContentToolsAPIStructs
 			CalculateNormals = ToByte(settings.CalculateNormals);
 			CalculateTangents = ToByte(settings.CalculateTangents);
 			ReverseHandedness = ToByte(settings.ReverseHandedness);
-			ImportEmbededTextures = ToByte(settings.ImportEmbeddedTextures);
+			ImportEmbededTextures = ToByte(settings.ImportEmbededTextures);
 			ImportAnimations = ToByte(settings.ImportAnimations);
 		}
 	}
@@ -56,7 +56,7 @@ namespace PrimalEditor.ContentToolsAPIStructs
 	[StructLayout(LayoutKind.Sequential)]
 	class PrimitiveInitInfo
 	{
-		public Content.PrimitveMeshType Type;
+		public Content.PrimitiveMeshType Type;
 		public int SegmentX = 1;
 		public int SegmentY = 1;
 		public int SegmentZ = 1;
