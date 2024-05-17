@@ -51,6 +51,7 @@ namespace primal::graphics::d3d12::core {
 
 				_fence_event = CreateEventEx(nullptr, nullptr, 0, EVENT_ALL_ACCESS);
 				assert(_fence_event);
+				if (!_fence_event) goto _error;
 
 				return;
 

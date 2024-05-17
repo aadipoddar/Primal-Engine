@@ -1,7 +1,8 @@
 #include "D3D12Helpers.h"
 #include "D3D12Core.h"
+#include "D3D12Upload.h"
 
-namespace primal::graphics::d3d12::d3dx {
+namespace	primal::graphics::d3d12::d3dx {
 
 	namespace {
 
@@ -62,6 +63,77 @@ namespace primal::graphics::d3d12::d3dx {
 		desc.SizeInBytes = stream_size;
 		desc.pPipelineStateSubobjectStream = stream;
 		return create_pipeline_state(desc);
+	}
+
+	ID3D12Resource* create_buffer(u32 buffer_size, void* data, bool is_cpu_accessible, D3D12_RESOURCE_STATES state, D3D12_RESOURCE_FLAGS flags, ID3D12Heap* heap, u64 heap_offset)
+	{
+		assert(buffer_size);
+
+		D3D12_RESOURCE_DESC desc{};
+		desc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
+		desc.Alignment = 0;
+		desc.Width = buffer_size;
+		desc.Height = 1;
+		desc.DepthOrArraySize = 1;
+		desc.MipLevels = 1;
+		desc.Format = DXGI_FORMAT_UNKNOWN;
+		desc.SampleDesc = { 1,0 };
+		desc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
+		desc.Flags = is_cpu_accessible ? D3D12_RESOURCE_FLAG_NONE : flags;
+
+		// The buffer will be only used for upload or as constant buffer/UAV
+		assert(desc.Flags == D3D12_RESOURCE_FLAG_NONE ||
+			   desc.Flags == D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
+
+		ID3D12Resource* resource{ nullptr };
+		const D3D12_RESOURCE_STATES resource_state
+		{ is_cpu_accessible ? D3D12_RESOURCE_STATE_GENERIC_READ : state };
+
+		if (heap)
+		{
+			core::device()->CreatePlacedResource(
+				heap, heap_offset, &desc, resource_state,
+				nullptr, IID_PPV_ARGS(&resource));
+		}
+
+		else
+		{
+			DXCall(core::device()->CreateCommittedResource(
+				is_cpu_accessible ? &heap_properties.upload_heap : &heap_properties.default_heap,
+				D3D12_HEAP_FLAG_NONE, &desc, resource_state,
+				nullptr, IID_PPV_ARGS(&resource)));
+		}
+
+		if (data)
+		{
+			// If we have inital data which we'd like to be able to change later, we set is_cpu_accessible to true
+			// If we only want to upload some data once to be used by the GPU, then is_cpu_accessible shoould be set to false
+
+			if (is_cpu_accessible)
+			{
+
+				// NOTE: Range's Begina and End fields are set to 0, to indicate that
+				//			the CPU is not reading and data (i.e. write_only)
+				D3D12_RANGE range{};
+				void* cpu_address{ nullptr };
+
+				DXCall(resource->Map(0, &range, reinterpret_cast<void**>(&cpu_address)));
+				assert(cpu_address);
+				memcpy(cpu_address, data, buffer_size);
+				resource->Unmap(0, nullptr);
+			}
+
+			else
+			{
+				upload::d3d12_upload_context context{ buffer_size };
+				memcpy(context.cpu_address(), data, buffer_size);
+				context.command_list()->CopyResource(resource, context.upload_buffer());
+				context.end_upload();
+			}
+		}
+
+		assert(resource);
+		return resource;
 	}
 
 }

@@ -13,6 +13,14 @@ namespace primal::graphics::d3d12::d3dx {
 			0												// VisibleNodeMask
 		};
 
+		const D3D12_HEAP_PROPERTIES upload_heap{
+			D3D12_HEAP_TYPE_UPLOAD,							// Type
+			D3D12_CPU_PAGE_PROPERTY_UNKNOWN,				// CPUPageProperty
+			D3D12_MEMORY_POOL_UNKNOWN,						// MemoryPoolPreference
+			0,												// CreationNodeMask
+			0												// VisibleNodeMask
+		};
+
 	} heap_properties;
 
 	constexpr struct {
@@ -95,7 +103,7 @@ namespace primal::graphics::d3d12::d3dx {
 
 		// Add a transition barrier to the list of barriers
 		constexpr void add(ID3D12Resource* resource, D3D12_RESOURCE_STATES before, D3D12_RESOURCE_STATES after,
-			D3D12_RESOURCE_BARRIER_FLAGS flags = D3D12_RESOURCE_BARRIER_FLAG_NONE, u32 subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES) {
+						   D3D12_RESOURCE_BARRIER_FLAGS flags = D3D12_RESOURCE_BARRIER_FLAG_NONE, u32 subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES) {
 
 			assert(resource);
 			assert(_offset < max_resource_barriers);
@@ -148,14 +156,14 @@ namespace primal::graphics::d3d12::d3dx {
 	};
 
 	void transition_resource(
-		id3d12_graphics_command_list* cmd_list, ID3D12Resource* resource,  D3D12_RESOURCE_STATES before, D3D12_RESOURCE_STATES after,
+		id3d12_graphics_command_list* cmd_list, ID3D12Resource* resource, D3D12_RESOURCE_STATES before, D3D12_RESOURCE_STATES after,
 		D3D12_RESOURCE_BARRIER_FLAGS flags = D3D12_RESOURCE_BARRIER_FLAG_NONE, u32 subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES);
 
 	ID3D12RootSignature* create_root_signature(const D3D12_ROOT_SIGNATURE_DESC1& desc);
 
 	struct d3d12_descriptor_range : public D3D12_DESCRIPTOR_RANGE1 {
 		constexpr explicit d3d12_descriptor_range(D3D12_DESCRIPTOR_RANGE_TYPE range_type, u32 descriptor_count, u32 shader_register, u32 space = 0,
-			D3D12_DESCRIPTOR_RANGE_FLAGS flags = D3D12_DESCRIPTOR_RANGE_FLAG_NONE, u32 offset_from_table_start = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND)
+												  D3D12_DESCRIPTOR_RANGE_FLAGS flags = D3D12_DESCRIPTOR_RANGE_FLAG_NONE, u32 offset_from_table_start = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND)
 			: D3D12_DESCRIPTOR_RANGE1{ range_type, descriptor_count, shader_register, space, flags, offset_from_table_start }
 		{}
 	};
@@ -206,8 +214,8 @@ namespace primal::graphics::d3d12::d3dx {
 	// Static samples = 0 DWORDs (compiled into shader)
 	struct d3d12_root_signature_desc : public D3D12_ROOT_SIGNATURE_DESC1 {
 		constexpr explicit d3d12_root_signature_desc(const d3d12_root_parameter* parameters, u32 parameter_count, const D3D12_STATIC_SAMPLER_DESC* static_samplers = nullptr,
-			u32 sampler_count = 0, D3D12_ROOT_SIGNATURE_FLAGS flags = D3D12_ROOT_SIGNATURE_FLAG_DENY_HULL_SHADER_ROOT_ACCESS | D3D12_ROOT_SIGNATURE_FLAG_DENY_DOMAIN_SHADER_ROOT_ACCESS |
-			D3D12_ROOT_SIGNATURE_FLAG_DENY_GEOMETRY_SHADER_ROOT_ACCESS | D3D12_ROOT_SIGNATURE_FLAG_DENY_AMPLIFICATION_SHADER_ROOT_ACCESS | D3D12_ROOT_SIGNATURE_FLAG_DENY_MESH_SHADER_ROOT_ACCESS)
+													 u32 sampler_count = 0, D3D12_ROOT_SIGNATURE_FLAGS flags = D3D12_ROOT_SIGNATURE_FLAG_DENY_HULL_SHADER_ROOT_ACCESS | D3D12_ROOT_SIGNATURE_FLAG_DENY_DOMAIN_SHADER_ROOT_ACCESS |
+													 D3D12_ROOT_SIGNATURE_FLAG_DENY_GEOMETRY_SHADER_ROOT_ACCESS | D3D12_ROOT_SIGNATURE_FLAG_DENY_AMPLIFICATION_SHADER_ROOT_ACCESS | D3D12_ROOT_SIGNATURE_FLAG_DENY_MESH_SHADER_ROOT_ACCESS)
 			: D3D12_ROOT_SIGNATURE_DESC1{ parameter_count, parameters, sampler_count, static_samplers, flags }
 		{}
 
@@ -221,7 +229,7 @@ namespace primal::graphics::d3d12::d3dx {
 	template<D3D12_PIPELINE_STATE_SUBOBJECT_TYPE type, typename T> class alignas(void*) d3d12_pipeline_state_subobject {
 	public:
 		d3d12_pipeline_state_subobject() = default;
-		constexpr explicit d3d12_pipeline_state_subobject(T subobject) : _type{ type }, _subobject{ subobject }{}
+		constexpr explicit d3d12_pipeline_state_subobject(T subobject) : _type{ type }, _subobject{ subobject } {}
 		d3d12_pipeline_state_subobject& operator=(const T& subobject) { _subobject = subobject; return *this; }
 	private:
 		const D3D12_PIPELINE_STATE_SUBOBJECT_TYPE _type{ type };
@@ -260,5 +268,10 @@ namespace primal::graphics::d3d12::d3dx {
 
 	ID3D12PipelineState* create_pipeline_state(D3D12_PIPELINE_STATE_STREAM_DESC desc);
 	ID3D12PipelineState* create_pipeline_state(void* stream, u64 stream_size);
+
+	ID3D12Resource* create_buffer(u32 buffer_size, void* data = nullptr, bool is_cpu_accessible = false,
+								  D3D12_RESOURCE_STATES state = D3D12_RESOURCE_STATE_COMMON,
+								  D3D12_RESOURCE_FLAGS flags = D3D12_RESOURCE_FLAG_NONE,
+								  ID3D12Heap* heap = nullptr, u64 heap_offset = 0);
 
 }
