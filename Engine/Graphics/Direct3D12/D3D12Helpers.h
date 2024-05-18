@@ -269,7 +269,7 @@ namespace primal::graphics::d3d12::d3dx {
 	ID3D12PipelineState* create_pipeline_state(D3D12_PIPELINE_STATE_STREAM_DESC desc);
 	ID3D12PipelineState* create_pipeline_state(void* stream, u64 stream_size);
 
-	ID3D12Resource* create_buffer(u32 buffer_size, void* data = nullptr, bool is_cpu_accessible = false,
+	ID3D12Resource* create_buffer(const void* data, u32 buffer_size, bool is_cpu_accessible = false,
 								  D3D12_RESOURCE_STATES state = D3D12_RESOURCE_STATE_COMMON,
 								  D3D12_RESOURCE_FLAGS flags = D3D12_RESOURCE_FLAG_NONE,
 								  ID3D12Heap* heap = nullptr, u64 heap_offset = 0);

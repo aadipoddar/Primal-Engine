@@ -3,6 +3,7 @@
 #include "D3D12Shaders.h"
 #include "D3D12GPass.h"
 #include "D3D12PostProcess.h"
+#include "D3D12Upload.h"
 
 using namespace Microsoft::WRL;
 
@@ -26,24 +27,24 @@ namespace primal::graphics::d3d12::core {
 				DXCall(hr = device->CreateCommandQueue(&desc, IID_PPV_ARGS(&_cmd_queue)));
 				if (FAILED(hr)) goto _error;
 				NAME_D3D12_OBJECT(_cmd_queue,
-					type == D3D12_COMMAND_LIST_TYPE_DIRECT ? L"GFX Command Queue" :
-					type == D3D12_COMMAND_LIST_TYPE_COMPUTE ? L"Compute Command Queue" : L"Command Queue");
+								  type == D3D12_COMMAND_LIST_TYPE_DIRECT ? L"GFX Command Queue" :
+								  type == D3D12_COMMAND_LIST_TYPE_COMPUTE ? L"Compute Command Queue" : L"Command Queue");
 
 				for (u32 i{ 0 }; i < frame_buffer_count; ++i) {
 					command_frame& frame{ _cmd_frames[i] };
 					DXCall(hr = device->CreateCommandAllocator(type, IID_PPV_ARGS(&frame.cmd_allocator)));
 					if (FAILED(hr)) goto _error;
 					NAME_D3D12_OBJECT_INDEXED(frame.cmd_allocator, i,
-						type == D3D12_COMMAND_LIST_TYPE_DIRECT ? L"GFX Command Allocator" :
-						type == D3D12_COMMAND_LIST_TYPE_COMPUTE ? L"Compute Command Allocator" : L"Command Allocator");
+											  type == D3D12_COMMAND_LIST_TYPE_DIRECT ? L"GFX Command Allocator" :
+											  type == D3D12_COMMAND_LIST_TYPE_COMPUTE ? L"Compute Command Allocator" : L"Command Allocator");
 				}
 
 				DXCall(hr = device->CreateCommandList(0, type, _cmd_frames[0].cmd_allocator, nullptr, IID_PPV_ARGS(&_cmd_list)));
 				if (FAILED(hr)) goto _error;
 				DXCall(_cmd_list->Close());
 				NAME_D3D12_OBJECT(_cmd_list,
-					type == D3D12_COMMAND_LIST_TYPE_DIRECT ? L"GFX Command List" :
-					type == D3D12_COMMAND_LIST_TYPE_COMPUTE ? L"Compute Command List" : L"Command List");
+								  type == D3D12_COMMAND_LIST_TYPE_DIRECT ? L"GFX Command List" :
+								  type == D3D12_COMMAND_LIST_TYPE_COMPUTE ? L"Compute Command List" : L"Command List");
 
 				DXCall(hr = device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&_fence)));
 				if (FAILED(hr)) goto _error;
@@ -63,7 +64,7 @@ namespace primal::graphics::d3d12::core {
 				assert(!_cmd_queue && !_cmd_list && !_fence);
 			}
 
-			// Wait for the current frame to be signalled and reset the command list/allocator.
+			// Wait for the current frame to be signaled and reset the command list/allocator.
 			void begin_frame() {
 				command_frame& frame{ _cmd_frames[_frame_index] };
 				frame.wait(_fence_event, _fence);
@@ -246,16 +247,16 @@ namespace primal::graphics::d3d12::core {
 		if (main_device) shutdown();
 
 		u32 dxgi_factory_flags{ 0 };
-#ifdef _DEBUG
+	#ifdef _DEBUG
 		//Enable debugging layer. Requires "Graphics Tools" optional feature
 		{
 			ComPtr<ID3D12Debug3> debug_interface;
 			if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&debug_interface)))) {
 				debug_interface->EnableDebugLayer();
-#if 0
-#pragma message("WARNING: GPU_based validation is enabled. This will considerably slow down the renderer!");
+			#if 0
+			#pragma message("WARNING: GPU_based validation is enabled. This will considerably slow down the renderer!");
 				debug_interface->SetEnableGPUBasedValidation(1);
-#endif
+			#endif
 			}
 			else {
 				OutputDebugStringA("Warning: D3D12 Debug interface is not available. Verify that Graphics Tools optional feature is installed in this system.\n");
@@ -263,7 +264,7 @@ namespace primal::graphics::d3d12::core {
 
 			dxgi_factory_flags |= DXGI_CREATE_FACTORY_DEBUG;
 		}
-#endif // _DEBUG
+	#endif // _DEBUG
 
 		HRESULT hr{ S_OK };
 		DXCall(hr = CreateDXGIFactory2(dxgi_factory_flags, IID_PPV_ARGS(&dxgi_factory)));
@@ -281,7 +282,7 @@ namespace primal::graphics::d3d12::core {
 		DXCall(hr = D3D12CreateDevice(main_adapter.Get(), max_feature_level, IID_PPV_ARGS(&main_device)));
 		if (FAILED(hr)) return failed_init();
 
-#ifdef _DEBUG
+	#ifdef _DEBUG
 		{
 			ComPtr<ID3D12InfoQueue> info_queue;
 			DXCall(main_device->QueryInterface(IID_PPV_ARGS(&info_queue)));
@@ -289,7 +290,7 @@ namespace primal::graphics::d3d12::core {
 			info_queue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_WARNING, true);
 			info_queue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_ERROR, true);
 		}
-#endif // _DEBUG
+	#endif // _DEBUG
 
 		bool result{ true };
 		result &= rtv_desc_heap.initialize(512, false);
@@ -302,7 +303,11 @@ namespace primal::graphics::d3d12::core {
 		if (!gfx_command.command_queue()) return failed_init();
 
 		// initialize modules
-		if (!(shaders::initialize() && gpass::initialize() && fx::initialize())) return failed_init();
+		if (!(shaders::initialize() &&
+			  gpass::initialize() &&
+			  fx::initialize() &&
+			  upload::initialize()))
+			return failed_init();
 
 		NAME_D3D12_OBJECT(main_device, L"Main D3D12 Device");
 		NAME_D3D12_OBJECT(rtv_desc_heap.heap(), L"RTV Descriptor Heap");
@@ -323,6 +328,7 @@ namespace primal::graphics::d3d12::core {
 		}
 
 		// shutdown modules
+		upload::shutdown();
 		fx::shutdown();
 		gpass::shutdown();
 		shaders::shutdown();
@@ -345,7 +351,7 @@ namespace primal::graphics::d3d12::core {
 		//		 To finally release their resources we call process_deferred_releases once more.
 		process_deferred_releases(0);
 
-#ifdef _DEBUG
+	#ifdef _DEBUG
 		{
 			{
 				ComPtr<ID3D12InfoQueue> info_queue;
@@ -360,7 +366,7 @@ namespace primal::graphics::d3d12::core {
 			release(main_device);
 			DXCall(debug_device->ReportLiveDeviceObjects(D3D12_RLDO_SUMMARY | D3D12_RLDO_DETAIL | D3D12_RLDO_IGNORE_INTERNAL));
 		}
-#endif // _DEBUG
+	#endif // _DEBUG
 
 		release(main_device);
 	}

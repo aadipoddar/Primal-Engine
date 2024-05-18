@@ -35,4 +35,23 @@ namespace primal::math {
 		assert(min < max);
 		return unpack_to_unit_float<bits>(i) * (max - min) + min;
 	}
+
+	// Align by rounding up. Will result in a multiple of 'alignment'
+	template<u64 alignment> constexpr u64 align_size_up(u64 size)
+	{
+		static_assert(alignment, "Alignment must be non-zero.");
+		constexpr u64 mask{ alignment - 1 };
+		static_assert(!(alignment & mask), "Alignment should be a power of 2.");
+		return ((size + mask) & -mask);
+	}
+
+	// Align by rounding down. Will result in a multiple of 'alignment'
+	template<u64 alignment> constexpr u64 align_size_down(u64 size)
+	{
+		static_assert(alignment, "Alignment must be non-zero.");
+		constexpr u64 mask{ alignment - 1 };
+		static_assert(!(alignment & mask), "Alignment should be a power of 2.");
+		return (size & -mask);
+	}
+
 }

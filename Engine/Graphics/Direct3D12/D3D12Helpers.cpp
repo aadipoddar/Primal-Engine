@@ -65,7 +65,7 @@ namespace	primal::graphics::d3d12::d3dx {
 		return create_pipeline_state(desc);
 	}
 
-	ID3D12Resource* create_buffer(u32 buffer_size, void* data, bool is_cpu_accessible, D3D12_RESOURCE_STATES state, D3D12_RESOURCE_FLAGS flags, ID3D12Heap* heap, u64 heap_offset)
+	ID3D12Resource* create_buffer(const void* data, u32 buffer_size, bool is_cpu_accessible, D3D12_RESOURCE_STATES state, D3D12_RESOURCE_FLAGS flags, ID3D12Heap* heap, u64 heap_offset)
 	{
 		assert(buffer_size);
 
@@ -106,15 +106,15 @@ namespace	primal::graphics::d3d12::d3dx {
 
 		if (data)
 		{
-			// If we have inital data which we'd like to be able to change later, we set is_cpu_accessible to true
-			// If we only want to upload some data once to be used by the GPU, then is_cpu_accessible shoould be set to false
+			// If we have initial data which we'd like to be able to change later, we set is_cpu_accessible to true
+			// If we only want to upload some data once to be used by the GPU, then is_cpu_accessible should be set to false
 
 			if (is_cpu_accessible)
 			{
 
-				// NOTE: Range's Begina and End fields are set to 0, to indicate that
+				// NOTE: Range's Begin and End fields are set to 0, to indicate that
 				//			the CPU is not reading and data (i.e. write_only)
-				D3D12_RANGE range{};
+				const D3D12_RANGE range{};
 				void* cpu_address{ nullptr };
 
 				DXCall(resource->Map(0, &range, reinterpret_cast<void**>(&cpu_address)));
