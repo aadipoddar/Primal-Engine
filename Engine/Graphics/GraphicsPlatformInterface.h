@@ -20,6 +20,12 @@ namespace primal::graphics
 			void(*render)(surface_id);
 		} surface;
 
+		struct
+		{
+			id::id_type (*add_submesh)(const u8*& data);
+			void (*remove_submesh)(id::id_type id);
+		} resources;
+
 		graphics_platform platform = (graphics_platform)-1;
 	};
 }
